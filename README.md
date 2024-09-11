@@ -1,5 +1,5 @@
-Projektin nimi
-Tiimi: Etunimi Sukunimi, Etunimi Sukunimi
+TicketGuru
+Tiimi: Tom-Kareel Kiisk, Nikolas Kataja, Aapo Kiljunen, Ville Kotilainen, Julius Luhtala, Kasperi Kuusanmäki
 
 Johdanto
 Johdantoon kirjoitetaan lyhyt, ytimekäs kuvaus siitä, mikä on projektin aihe, kuka on asiakas (käyttäjä), mitä hän haluaa ja saa järjestelmältä, mitä tekniikoita käytetään ja mitä konkreettisesti on valmiina, kun projekti päättyy.
