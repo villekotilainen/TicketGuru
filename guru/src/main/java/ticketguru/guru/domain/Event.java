@@ -39,12 +39,6 @@ public class Event {
     }
 
     public Event() {
-        this.eventId = null;
-        this.eventName = null;
-        this.startTime = null;
-        this.endTime = null;
-        this.eventDescription = null;
-        this.venue = null;
     }
 
     public Long getEventId() {

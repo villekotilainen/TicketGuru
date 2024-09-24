@@ -37,11 +37,6 @@ public class Transaction {
     }
 
     public Transaction() {
-        this.transactionId = null;
-        this.transactionDate = null;
-        this.totalSum = null;
-        this.succeeded = null;
-        this.user = null;
     }
 
     public Long getTransactionId() {

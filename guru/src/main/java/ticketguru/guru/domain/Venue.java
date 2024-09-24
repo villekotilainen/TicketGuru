@@ -15,24 +15,20 @@ public class Venue {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long venueId;
     private String venueName;
-    private String adress;
+    private String address;
     private String venueDescription;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "venue") //one-to-many relationship with Event
     private List<Event> events;
 
-    public Venue(Long venueId, String venueName, String adress, String venueDescription) {
+    public Venue(Long venueId, String venueName, String address, String venueDescription) {
         this.venueId = venueId;
         this.venueName = venueName;
-        this.adress = adress;
+        this.address = address;
         this.venueDescription = venueDescription;
     }
 
     public Venue() {
-        this.venueId = null;
-        this.venueName = null;
-        this.adress = null;
-        this.venueDescription = null;
     }
 
     public Long getVenueId() {
@@ -51,12 +47,12 @@ public class Venue {
         this.venueName = venueName;
     }
 
-    public String getAdress() {
-        return adress;
+    public String getAddress() {
+        return address;
     }
 
-    public void setAdress(String adress) {
-        this.adress = adress;
+    public void setAdress(String address) {
+        this.address = address;
     }
 
     public String getVenueDescription() {
@@ -77,7 +73,7 @@ public class Venue {
 
     @Override
     public String toString() {
-        return "Venue [venueId=" + venueId + ", venueName=" + venueName + ", adress=" + adress + ", venueDescription="
+        return "Venue [venueId=" + venueId + ", venueName=" + venueName + ", adress=" + address + ", venueDescription="
                 + venueDescription + "]";
     }
 }

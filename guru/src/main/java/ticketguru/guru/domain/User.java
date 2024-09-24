@@ -35,14 +35,6 @@ public class User {
     }
 
     public User() {
-        this.userId = null;
-        this.email = null;
-        this.firstName = null;
-        this.lastName = null;
-        this.passwordHash = null;
-        this.address = null;
-        this.phone = null;
-        this.userrole = null;
     }
 
     public Long getUserId() {

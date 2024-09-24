@@ -21,7 +21,7 @@ public class Ticket {
     private Event event;
 
     @ManyToOne
-    @JoinColumn(name = "tickets") //many-to-one relationship with Transaction
+    @JoinColumn(name = "transactionId") //many-to-one relationship with Transaction
     private Transaction transaction;
 
     public Ticket(Long ticketId, String hashcode, Double price, String ticketUsedDate, Event event, Transaction transaction) {
@@ -34,12 +34,6 @@ public class Ticket {
     }
 
     public Ticket() {
-        this.ticketId = null;
-        this.hashcode = null;
-        this.price = null;
-        this.ticketUsedDate = null;
-        this.event = null;
-        this.transaction = null;
     }
 
     public Long getTicketId() {

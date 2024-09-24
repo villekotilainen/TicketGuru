@@ -25,8 +25,6 @@ public class Userrole {
     }  
     
     public Userrole() {
-        this.userroleId = null;
-        this.role = null;
     } 
 
     public Long getUserroleId() {
@@ -41,8 +39,12 @@ public class Userrole {
         return role;
     }
 
-    public void setUserId(String role) {
+    public void setRole(String role) {
         this.role = role;
+    }
+
+    public void setUserId(List<User> users) {
+        this.users = users;
     }
 
     @Override
