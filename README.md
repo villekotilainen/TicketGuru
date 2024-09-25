@@ -24,6 +24,18 @@ Käyttäjäryhmät ja roolit
 - Tapahtumavastaava: Määrittää järjestelmään tapahtumat ja lippujen määrät. Hallinnoi myyntipisteitä ja seuraa lippujen myyntiä reaaliaikaisesti.
 - Asiakas: Tulevaisuudessa voi ostaa lippuja verkkokaupan kautta itsepalveluna, sekä käyttää ostamansa liput tapahtumaan saapuessaan.
 
+Käyttäjä tarinat
+
+-Myyjänä haluan, että jo olleet tapahtumat eivät näy myyntinäkymässä, mutta voin silti tarvittaessa etsiä myös vanhoja tapahtumia.
+-Myyjänä haluan lisätä tapahtumia järjestelmään.
+-Myyjänä haluan asettaa myytävien lippujen määrät sekä hinnat.
+-Myyjänä haluan pystyä muuttamaan hintoja ostajan perusteella (esim norm, opiskelija ja eläke).
+-Myyjänä haluan muokata tapahtumaa (esim kuvaa, päivää ja lokaatiota).
+-Myyjänä haluan järjestelmän luovan jokaiselle lipulle uniikin ID:n.
+-Myyjänä haluan saada nähdä myyntiraportin helposti.
+-Asiakkaana haluan mahdollisuuden tulostaa minun ostamat liput
+-Lipuntarkastajana haluan pystyä tarkastamaan liput ja niiden uniikit ID:t ovella.
+
 Käyttötapaukset (Use Case)
 - Tapahtuman luonti – Tapahtumavastaava määrittää uuden tapahtuman, johon liput asetetaan myyntiin.
 - Lipun myynti myyntipisteessä – Lipunmyyjä myy asiakkaalle lippuja ja tulostaa ne.
