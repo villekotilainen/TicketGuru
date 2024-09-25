@@ -10,5 +10,5 @@ public interface VenueRepository extends JpaRepository<Venue, Long> {
 
     Venue findByVenueName(String venueName);
 
-    List<Venue> findByAdressContaining(String adress);
+    List<Venue> findByAddressContaining(String address);
 }
