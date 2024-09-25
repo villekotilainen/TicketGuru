@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-GuruApplication<guru>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "ticketguru.guru.GuruApplication",
+            "projectName": "guru",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
