@@ -30,6 +30,20 @@ Käyttötapaukset (Use Case)
 - Lipun tarkastus ja käyttöön merkitseminen – Ovenvartija tarkastaa asiakkaan lipun ovella ja merkitsee sen käytetyksi.
 - Lippujen tulostus ovelta myytäväksi – Lipunmyyjä tulostaa ennakkomyynnin jälkeen jäljellä olevat liput ovella myyntiä varten.
 - Verkkokaupan lipun ostaminen (Jatkokehitys) – Asiakas ostaa liput itse verkkokaupan kautta.
+- <<<<<<< Development
+
+=======
+Käyttäjätarinat
+
+-Myyjänä haluan, että jo olleet tapahtumat eivät näy myyntinäkymässä, mutta voin silti tarvittaessa etsiä myös vanhoja tapahtumia.
+-Myyjänä haluan lisätä tapahtumia järjestelmään.
+-Myyjänä haluan asettaa myytävien lippujen määrät sekä hinnat.
+-Myyjänä haluan pystyä muuttamaan hintoja ostajan perusteella (esim norm, opiskelija ja eläke).
+-Myyjänä haluan muokata tapahtumaa (esim kuvaa, päivää ja lokaatiota).
+-Myyjänä haluan järjestelmän luovan jokaiselle lipulle uniikin ID:n.
+-Myyjänä haluan saada nähdä myyntiraportin helposti.
+-Asiakkaana haluan mahdollisuuden tulostaa minun ostamat liput
+-Lipuntarkastajana haluan pystyä tarkastamaan liput ja niiden uniikit ID:t ovella.
 
 ## Käyttöliittymä
 Esitetään käyttöliittymän tärkeimmät (vain ne!) näkymät sekä niiden väliset siirtymät käyttöliittymäkaaviona.
