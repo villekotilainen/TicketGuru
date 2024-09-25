@@ -26,7 +26,7 @@ Käyttäjäryhmät ja roolit
 
 Käyttäjä tarinat
 
--Myyjänä haluan, että jo olleet tapahtumat eivät näy myyntinäkymässä, mutta voin silti tarvittaessa etsiä myös vanhoja tapahtumia. /n
+-Myyjänä haluan, että jo olleet tapahtumat eivät näy myyntinäkymässä, mutta voin silti tarvittaessa etsiä myös vanhoja tapahtumia.
 -Myyjänä haluan lisätä tapahtumia järjestelmään.
 -Myyjänä haluan asettaa myytävien lippujen määrät sekä hinnat.
 -Myyjänä haluan pystyä muuttamaan hintoja ostajan perusteella (esim norm, opiskelija ja eläke).
