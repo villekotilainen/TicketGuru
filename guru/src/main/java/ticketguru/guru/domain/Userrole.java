@@ -17,7 +17,7 @@ public class Userrole {
     private String role;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "userrole") //one-to-many relationship with User
-    private List<User> users;
+    private List<TGUser> users;
 
     public Userrole(Long userroleId, String role) {
         this.userroleId = userroleId;
@@ -43,7 +43,7 @@ public class Userrole {
         this.role = role;
     }
 
-    public void setUserId(List<User> users) {
+    public void setUserId(List<TGUser> users) {
         this.users = users;
     }
 

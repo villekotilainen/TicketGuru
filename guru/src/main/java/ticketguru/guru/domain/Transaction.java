@@ -23,12 +23,12 @@ public class Transaction {
 
     @ManyToOne
     @JoinColumn(name = "userId") //many-to-one relationship with User
-    private User user;
+    private TGUser user;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "transaction") //one-to-many realtionship with Ticket
     private List<Ticket> tickets;
 
-    public Transaction(Long transactionId, Date transactionDate, Double totalSum, Boolean succeeded, User user) {
+    public Transaction(Long transactionId, Date transactionDate, Double totalSum, Boolean succeeded, TGUser user) {
         this.transactionId = transactionId;
         this.transactionDate = transactionDate;
         this.totalSum = totalSum;
@@ -71,11 +71,11 @@ public class Transaction {
         this.succeeded = succeeded;
     }
 
-    public User getUser() {
+    public TGUser getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(TGUser user) {
         this.user = user;
     }
 

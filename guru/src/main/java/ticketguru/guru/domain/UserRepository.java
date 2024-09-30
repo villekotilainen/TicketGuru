@@ -4,9 +4,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<TGUser, Long> {
 
-    User findByEmail(String email);
+    TGUser findByEmail(String email);
 
-    User findByFirstNameAndLastName(String firstName, String lastName);
+    TGUser findByFirstNameAndLastName(String firstName, String lastName);
 }

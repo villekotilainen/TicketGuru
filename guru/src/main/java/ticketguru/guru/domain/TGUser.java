@@ -8,7 +8,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
 @Entity
-public class User {
+public class TGUser {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long userId;
@@ -23,7 +23,7 @@ public class User {
     @JoinColumn(name = "userroleId") //many-to-one relationship with Userrole
     private Userrole userrole;
 
-    public User(Long userId, String email, String firstName, String lastName, String passwordHash, String address, String phone, Userrole userrole) {
+    public TGUser(Long userId, String email, String firstName, String lastName, String passwordHash, String address, String phone, Userrole userrole) {
         this.userId = userId;
         this.email = email;
         this.firstName = firstName;
@@ -34,7 +34,7 @@ public class User {
         this.userrole = userrole;
     }
 
-    public User() {
+    public TGUser() {
     }
 
     public Long getUserId() {
