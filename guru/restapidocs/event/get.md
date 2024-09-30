@@ -1,7 +1,5 @@
 # Show all events
 
-**Base URL** : `
-
 **URL** : `/events`
 
 **Method** : `/GET`
