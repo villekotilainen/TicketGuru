@@ -1,4 +1,4 @@
-package ticketguru.guru.domain;
+package ticketguru.guru.Entities;
 
 import java.util.Date;
 import java.util.List;

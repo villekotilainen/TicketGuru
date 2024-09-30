@@ -1,10 +1,12 @@
-package ticketguru.guru.domain;
+package ticketguru.guru.Repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import ticketguru.guru.Entities.TGUser;
+
 @Repository
-public interface UserRepository extends JpaRepository<TGUser, Long> {
+public interface TGUserRepository extends JpaRepository<TGUser, Long> {
 
     TGUser findByEmail(String email);
 
