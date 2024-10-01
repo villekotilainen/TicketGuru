@@ -12,7 +12,7 @@ public class Ticket {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long ticketId;
-    private Integer hashcode;
+    private String hashcode;
     private String ticketUsedDate;
 
     @ManyToOne
@@ -23,7 +23,7 @@ public class Ticket {
     @JoinColumn(name = "ticketTypeId") //many-to-one relationship with TicketType
     private TicketType ticketType;
 
-    public Ticket(Long ticketId, Integer hashcode, String ticketUsedDate, TicketType ticketType) {
+    public Ticket(Long ticketId, String hashcode, String ticketUsedDate, TicketType ticketType) {
         this.ticketId = ticketId;
         this.hashcode = hashcode;
         this.ticketUsedDate = ticketUsedDate;
@@ -41,11 +41,11 @@ public class Ticket {
         this.ticketId = ticketId;
     }
 
-    public Integer getHashcode() {
+    public String getHashcode() {
         return hashcode;
     }
 
-    public void setHashcode(Integer hashcode) {
+    public void setHashcode(String hashcode) {
         this.hashcode = hashcode;
     }
 

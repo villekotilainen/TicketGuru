@@ -12,7 +12,7 @@ import java.util.List;
 @Repository
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
-    List<Ticket> findByEvent(Event event);
+    List<Ticket> findByTicketType_Event(Event event);
 
     List<Ticket> findByTransaction(Transaction transaction);
 

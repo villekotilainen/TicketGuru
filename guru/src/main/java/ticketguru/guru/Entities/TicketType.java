@@ -25,7 +25,7 @@ public class TicketType {
 
     @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "ticketType")
-    private List<TicketType> ticketTypes;
+    private List<Ticket> tickets; 
 
     @ManyToOne
     @JoinColumn(name = "eventId") //many-to-one relationship with Event
@@ -73,12 +73,12 @@ public class TicketType {
         this.totalCount = totalCount;
     }
 
-    public List<TicketType> getTicketTypes() {
-        return ticketTypes;
+    public List<Ticket> getTickets() {
+        return tickets;
     }
 
-    public void setTicketTypes(List<TicketType> ticketTypes) {
-        this.ticketTypes = ticketTypes;
+    public void setTickets(List<Ticket> tickets) {
+        this.tickets = tickets;
     }
 
     public Event getEvent() {
