@@ -65,7 +65,7 @@ Jos näkymän tarkoitus ei ole itsestään selvä, se pitää kuvata lyhyesti.
 > startTime | timestamp | Tapahtuman aloitus pvm
 > endTime | timestamp | Tapahtuman lopetus pvm
 > eventDescription | varchar | Tapahtuman kuvaus
-> venue_id | int FK | Tapahtumapaikka, viittaus [Venue](#Venue)-tauluun
+> venueId | int FK | Tapahtumapaikka, viittaus [Venue](#Venue)-tauluun
 
 ### _Venue_
 > _Venue-taulu sisältää tapahtumapaikan tiedot._
