@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import ticketguru.guru.Entities.UserrolePermissions;
 
 @Repository
-public interface UserrolePermissionRepository extends JpaRepository <UserrolePermissions, Long>{
+public interface UserrolePermissionsRepository extends JpaRepository <UserrolePermissions, Long>{
 
 }

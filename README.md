@@ -107,7 +107,7 @@ Jos näkymän tarkoitus ei ole itsestään selvä, se pitää kuvata lyhyesti.
 > transactionDate | timestamp | Ostotapahtuman pvm
 > totalSum | int | Ostotapahtuman hinta
 > succeeded | boolean | Ostotapahtuman status
-> TGUserId | int FK | Käyttäjä, viittaus [TGUser](#TGUser)-tauluun
+> userId | int FK | Käyttäjä, viittaus [TGUser](#TGUser)-tauluun
 > ticketId | int FK | Lippu, viittaus [Ticket](#Ticket)-tauluun
 
  ### _TGUser_
