@@ -29,8 +29,8 @@ public class Event {
     private Venue venue;
 
     @JsonIgnore
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "event") //one-to-many relationship with Ticket
-    private List<Ticket> tickets;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "event") //one-to-many relationship with TicketType
+    private List<TicketType> ticketTypes;
 
     public Event(Long eventId, String eventName, LocalDate startTime, LocalDate endTime, String eventDescription, Venue venue) {
         this.eventId = eventId;
@@ -92,12 +92,12 @@ public class Event {
         this.venue = venue;
     }
 
-    public List<Ticket> getTickets() {
-        return tickets;
+    public List<TicketType> getTicketTypes() {
+        return ticketTypes;
     }
 
-    public void setTickets(List<Ticket> tickets) {
-        this.tickets = tickets;
+    public void setTicketTypes(List<TicketType> ticketTypes) {
+        this.ticketTypes = ticketTypes;
     }
 
     @Override

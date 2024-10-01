@@ -15,7 +15,7 @@ public class TGUser {
     private String email;
     private String firstName;
     private String lastName;
-    private String passwordHash;
+    private String password;
     private String address;
     private String phone;
 
@@ -23,12 +23,12 @@ public class TGUser {
     @JoinColumn(name = "userroleId") //many-to-one relationship with Userrole
     private Userrole userrole;
 
-    public TGUser(Long userId, String email, String firstName, String lastName, String passwordHash, String address, String phone, Userrole userrole) {
+    public TGUser(Long userId, String email, String firstName, String lastName, String password, String address, String phone, Userrole userrole) {
         this.userId = userId;
         this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.passwordHash = passwordHash;
+        this.password = password;
         this.address = address;
         this.phone = phone;
         this.userrole = userrole;
@@ -69,12 +69,12 @@ public class TGUser {
         this.lastName = lastName;
     }
 
-    public String getPasswordHash() {
-        return passwordHash;
+    public String getPassword() {
+        return password;
     }
 
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getAddress() {
@@ -104,7 +104,7 @@ public class TGUser {
     @Override
     public String toString() {
         return "User [userId=" + userId + ", email=" + email + ", firstName=" + firstName + ", lastName=" + lastName
-                + ", passwordHash=" + passwordHash + ", address=" + address + ", phone=" + phone + ", userrole="
+                + ", password=" + password + ", address=" + address + ", phone=" + phone + ", userrole="
                 + userrole + "]";
     } 
 }

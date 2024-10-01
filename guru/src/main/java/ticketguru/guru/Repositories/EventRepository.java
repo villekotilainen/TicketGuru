@@ -7,7 +7,7 @@ import ticketguru.guru.Entities.Event;
 import ticketguru.guru.Entities.Venue;
 
 import java.util.List;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Repository
 public interface EventRepository extends JpaRepository<Event, Long> {
@@ -16,7 +16,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     List<Event> findByEventName(String eventName);
 
-    List<Event> findByStartTimeAfter(Date date);
+    List<Event> findByStartTimeAfter(LocalDate date);
 
-    List<Event> findByStartTimeBetween(Date startDate, Date endDate);
+    List<Event> findByStartTimeBetween(LocalDate startDate, LocalDate endDate);
 }

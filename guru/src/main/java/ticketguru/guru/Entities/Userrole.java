@@ -7,6 +7,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 
 @Entity
@@ -15,6 +17,10 @@ public class Userrole {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long userroleId;
     private String role;
+
+    @ManyToOne
+    @JoinColumn(name = "eventId") //many-to-one relationship with UserrolePermissions
+    private Event event;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "userrole") //one-to-many relationship with User
     private List<TGUser> users;

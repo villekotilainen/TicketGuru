@@ -53,18 +53,92 @@ Jos näkymän tarkoitus ei ole itsestään selvä, se pitää kuvata lyhyesti.
 ## Tietokanta
 ![alt text](./resources/db_relation_diagram.png "Relational diagram")
 
-Järjestelmään säilöttävä ja siinä käsiteltävät tiedot ja niiden väliset suhteet kuvataan käsitekaaviolla. Käsitemalliin sisältyy myös taulujen välisten viiteyhteyksien ja avainten määritykset. Tietokanta kuvataan käyttäen jotain kuvausmenetelmää, joko ER-kaaviota ja UML-luokkakaaviota.
+## Tietohakemisto
 
-Lisäksi kukin järjestelmän tietoelementti ja sen attribuutit kuvataan tietohakemistossa. Tietohakemisto tarkoittaa yksinkertaisesti vain jokaisen elementin (taulun) ja niiden attribuuttien (kentät/sarakkeet) listausta ja lyhyttä kuvausta esim. tähän tyyliin:
+### _Event_
+> _Event-taulu sisältää tapahtuman tiedot._
+>
+> Kenttä | Tyyppi | Kuvaus
+> ------ | ------ | ------
+> eventId | int PK | Tapahtuman id
+> eventName | varchar | Tapahtuman nimi
+> startTime | timestamp | Tapahtuman aloitus pvm
+> endTime | timestamp | Tapahtuman lopetus pvm
+> eventDescription | varchar | Tapahtuman kuvaus
+> venue_id | int FK | Tapahtumapaikka, viittaus [Venue](#Venue)-tauluun
 
-Tilit
-Tilit-taulu sisältää käyttäjätilit. Käyttäjällä voi olla monta tiliä. Tili kuuluu aina vain yhdelle käyttäjälle.
+### _Venue_
+> _Venue-taulu sisältää tapahtumapaikan tiedot._
+>
+> Kenttä | Tyyppi | Kuvaus
+> ------ | ------ | ------
+> venueId | int PK | Tapahtumapaikan id
+> venueName | varchar | Tapahtumapaikan nimi
+> address | varchar | Tapahtumapaikan osoite
+> venueDescription | varchar | Tapahtumapaikan kuvaus
 
-Kenttä	Tyyppi	Kuvaus
-id	int PK	Tilin id
-nimimerkki	varchar(30)	Tilin nimimerkki
-avatar	int FK	Tilin avatar, viittaus avatar-tauluun
-kayttaja	int FK	Viittaus käyttäjään käyttäjä-taulussa
+ ### _Ticket_
+> _Ticket-taulu sisältää lipun tiedot._
+>
+> Kenttä | Tyyppi | Kuvaus
+> ------ | ------ | ------
+> ticketId | int PK | Lipun id
+> hashcode | int | Lipun koodi
+> price | int | Lipun hinta
+> ticketUsedDate | timestamp | Lipun käyttö pvm
+> ticketTypeId | int FK | Tapahtuma, viittaus [TicketType](#TicketType)-tauluun
+
+ ### _TicketType_
+> _Ticket-taulu sisältää lipun tiedot._
+>
+> Kenttä | Tyyppi | Kuvaus
+> ------ | ------ | ------
+> ticketId | int PK | Lipun id
+> hashcode | int | Lipun koodi
+> price | int | Lipun hinta
+> eventId | int FK | Tapahtuma, viittaus [Event](#Event)-tauluun
+
+ ### _Transaction_
+> _Transaction-taulu sisältää ostotapahtuman tiedot._
+>
+> Kenttä | Tyyppi | Kuvaus
+> ------ | ------ | ------
+> transactionId | int PK | Ostotapahtuman id
+> transactionDate | timestamp | Ostotapahtuman pvm
+> totalSum | int | Ostotapahtuman hinta
+> succeeded | boolean | Ostotapahtuman status
+> TGUserId | int FK | Käyttäjä, viittaus [TGUser](#TGUser)-tauluun
+> ticketId | int FK | Lippu, viittaus [Ticket](#Ticket)-tauluun
+
+ ### _TGUser_
+> _TGUser-taulu sisältää käyttäjän tiedot._
+>
+> Kenttä | Tyyppi | Kuvaus
+> ------ | ------ | ------
+> userId | int PK | Käyttäjän id
+> email | varchar | Käyttäjän sähköposti
+> firstName | varchar | Käyttäjän etunimi
+> lastName | varchar | Käyttäjän sukunimi
+> password | varchar | Käyttäjän salasana
+> address | varchar | Käyttäjän osoite
+> phone | int | Käyttäjän puhelinnumero
+> userroleId | int FK | Rooli, viittaus [Userrole](#Userrole)-tauluun
+
+ ### _Userrole_
+> _Userrole-taulu sisältää roolin tiedot._
+>
+> Kenttä | Tyyppi | Kuvaus
+> ------ | ------ | ------
+> userroleId | int PK | Roolin id
+> role | varchar FK | Käyttäjän sähköposti
+
+### _UserrolePermissions_
+> _UserrolePermissions-taulu sisältää roolin tiedot._
+
+> Kenttä | Tyyppi | Kuvaus
+> ------ | ------ | ------
+> permissionId | int PK | Käyttöoikeuden id
+> permissionDescription | varchar | Käyttöoikeuden kuvaus
 
 ## Tekninen kuvaus
 Teknisessä kuvauksessa esitetään järjestelmän toteutuksen suunnittelussa tehdyt tekniset ratkaisut, esim.

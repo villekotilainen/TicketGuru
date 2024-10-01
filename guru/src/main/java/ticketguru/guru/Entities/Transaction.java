@@ -25,7 +25,7 @@ public class Transaction {
     @JoinColumn(name = "userId") //many-to-one relationship with User
     private TGUser user;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "transaction") //one-to-many realtionship with Ticket
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "transaction") //one-to-many realationship with Ticket
     private List<Ticket> tickets;
 
     public Transaction(Long transactionId, Date transactionDate, Double totalSum, Boolean succeeded, TGUser user) {
