@@ -83,19 +83,20 @@ Jos näkymän tarkoitus ei ole itsestään selvä, se pitää kuvata lyhyesti.
 > Kenttä | Tyyppi | Kuvaus
 > ------ | ------ | ------
 > ticketId | int PK | Lipun id
-> hashcode | int | Lipun koodi
+> hashcode | varchar | Lipun koodi
 > price | int | Lipun hinta
 > ticketUsedDate | timestamp | Lipun käyttö pvm
 > ticketTypeId | int FK | Tapahtuma, viittaus [TicketType](#TicketType)-tauluun
 
  ### _TicketType_
-> _Ticket-taulu sisältää lipun tiedot._
+> _Ticket-taulu sisältää lipputyypin tiedot._
 >
 > Kenttä | Tyyppi | Kuvaus
 > ------ | ------ | ------
-> ticketId | int PK | Lipun id
-> hashcode | int | Lipun koodi
-> price | int | Lipun hinta
+> ticketTypeId | int PK | Lipputyypin id
+> ticketPrice | int | Lipun hinta
+> typeName | varchar | Lipputyypin nimi
+> totalCount | int | Lipputyypin määrä
 > eventId | int FK | Tapahtuma, viittaus [Event](#Event)-tauluun
 
  ### _Transaction_
