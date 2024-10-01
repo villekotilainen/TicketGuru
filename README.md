@@ -51,7 +51,7 @@ Esitetään käyttöliittymän tärkeimmät (vain ne!) näkymät sekä niiden v�
 Jos näkymän tarkoitus ei ole itsestään selvä, se pitää kuvata lyhyesti.
 
 ## Tietokanta
-![alt text](./resources/db_relation_diagram.png "Relational diagram")
+![alt text](./resources/tietokantakaavio.jpg "Relational diagram")
 
 ## Tietohakemisto
 
