@@ -24,7 +24,7 @@ public class TicketType {
     private Integer totalCount;
 
     @JsonIgnore
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "ticketType")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "ticketType") //one-to-many relationship with Ticket
     private List<Ticket> tickets; 
 
     @ManyToOne
