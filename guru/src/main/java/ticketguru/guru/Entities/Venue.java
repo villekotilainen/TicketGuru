@@ -1,6 +1,8 @@
-package ticketguru.guru.domain;
+package ticketguru.guru.Entities;
 
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -18,6 +20,7 @@ public class Venue {
     private String address;
     private String venueDescription;
 
+    @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "venue") //one-to-many relationship with Event
     private List<Event> events;
 

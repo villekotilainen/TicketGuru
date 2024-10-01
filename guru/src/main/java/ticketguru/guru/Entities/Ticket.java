@@ -1,4 +1,4 @@
-package ticketguru.guru.domain;
+package ticketguru.guru.Entities;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -13,24 +13,21 @@ public class Ticket {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long ticketId;
     private String hashcode;
-    private Double price;
     private String ticketUsedDate;
-
-    @ManyToOne
-    @JoinColumn(name = "eventId") //many-to-one relationship with Event
-    private Event event;
 
     @ManyToOne
     @JoinColumn(name = "transactionId") //many-to-one relationship with Transaction
     private Transaction transaction;
 
-    public Ticket(Long ticketId, String hashcode, Double price, String ticketUsedDate, Event event, Transaction transaction) {
+    @ManyToOne
+    @JoinColumn(name = "ticketTypeId") //many-to-one relationship with TicketType
+    private TicketType ticketType;
+
+    public Ticket(Long ticketId, String hashcode, String ticketUsedDate, TicketType ticketType) {
         this.ticketId = ticketId;
         this.hashcode = hashcode;
-        this.price = price;
         this.ticketUsedDate = ticketUsedDate;
-        this.event = event;
-        this.transaction = transaction;
+        this.ticketType = ticketType;
     }
 
     public Ticket() {
@@ -52,28 +49,12 @@ public class Ticket {
         this.hashcode = hashcode;
     }
 
-    public Double getPrice() {
-        return price;
-    }
-
-    public void setPrice(Double price) {
-        this.price = price;
-    }
-
     public String getTicketUsedDate() {
         return ticketUsedDate;
     }
 
     public void setTicketUsedDate(String ticketUsedDate) {
         this.ticketUsedDate = ticketUsedDate;
-    }
-
-    public Event getEvent() {
-        return event;
-    }
-
-    public void setEvent(Event event) {
-        this.event = event;
     }
 
     public Transaction getTransaction() {
@@ -83,10 +64,17 @@ public class Ticket {
     public void setTransaction(Transaction transaction) {
         this.transaction = transaction;
     }
+    
+    public TicketType getTicketType() {
+        return ticketType;
+    }
 
+    public void setTicketType(TicketType ticketType) {
+        this.ticketType = ticketType;
+    }  
     @Override
     public String toString() {
-        return "Ticket [ticketId=" + ticketId + ", hashcode=" + hashcode + ", price=" + price + ", ticketUsedDate="
-                + ticketUsedDate + ", event=" + event + ", transaction=" + transaction + "]";
-    }  
+        return "Ticket [ticketId=" + ticketId + ", hashcode=" + hashcode + ", ticketUsedDate="
+                + ticketUsedDate + ", ticketType=" + ticketType;
+    }
 }
