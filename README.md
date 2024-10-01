@@ -89,7 +89,7 @@ Jos näkymän tarkoitus ei ole itsestään selvä, se pitää kuvata lyhyesti.
 > ticketTypeId | int FK | Tapahtuma, viittaus [TicketType](#TicketType)-tauluun
 
  ### _TicketType_
-> _Ticket-taulu sisältää lipputyypin tiedot._
+> _TicketType-taulu sisältää lipputyypin tiedot._
 >
 > Kenttä | Tyyppi | Kuvaus
 > ------ | ------ | ------
