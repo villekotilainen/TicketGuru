@@ -133,7 +133,7 @@ Jos näkymän tarkoitus ei ole itsestään selvä, se pitää kuvata lyhyesti.
 > permissionsId | int FK | Käyttöoikeuden id, viittaus [UserrolePermissions](#UserrolePermissions)-tauluun
 
 ### _UserrolePermissions_
-> _UserrolePermissions-taulu sisältää roolin tiedot._
+> _UserrolePermissions-taulu sisältää käyttöoikeuksien tiedot._
 
 > Kenttä | Tyyppi | Kuvaus
 > ------ | ------ | ------
