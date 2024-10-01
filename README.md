@@ -130,7 +130,7 @@ Jos näkymän tarkoitus ei ole itsestään selvä, se pitää kuvata lyhyesti.
 > Kenttä | Tyyppi | Kuvaus
 > ------ | ------ | ------
 > userroleId | int PK | Roolin id
-> role | varchar FK | Käyttäjän sähköposti
+> permissionsId | int FK | Käyttöoikeuden id, viittaus [UserrolePermissions](#UserrolePermissions)-tauluun
 
 ### _UserrolePermissions_
 > _UserrolePermissions-taulu sisältää roolin tiedot._

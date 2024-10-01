@@ -2,6 +2,8 @@ package ticketguru.guru.Entities;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -16,7 +18,8 @@ public class UserrolePermissions {
     private Long permissionId;
     private String permissionDescription;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "userrole") //one-to-many relationship with Userrole
+    @JsonIgnore
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "userrolePermissions") //one-to-many relationship with Userrole
     private List<Userrole> Userroles;
 
     public UserrolePermissions(Long permissionId, String permissionDescription) {

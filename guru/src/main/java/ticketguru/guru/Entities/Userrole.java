@@ -2,6 +2,8 @@ package ticketguru.guru.Entities;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -19,10 +21,11 @@ public class Userrole {
     private String role;
 
     @ManyToOne
-    @JoinColumn(name = "eventId") //many-to-one relationship with UserrolePermissions
-    private Event event;
+    @JoinColumn(name = "permissionId") //many-to-one relationship with UserrolePermissions
+    private UserrolePermissions userrolePermissions;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "userrole") //one-to-many relationship with User
+    @JsonIgnore
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "userrole") //one-to-many relationship with TGUser
     private List<TGUser> users;
 
     public Userrole(Long userroleId, String role) {
