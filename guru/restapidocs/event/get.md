@@ -1,6 +1,6 @@
 # Show all events
 
-**URL** : `/events`
+**URL** : `/api/events`
 
 **Method** : `/GET`
 
@@ -58,7 +58,7 @@
 ]
 ```
 
-# Show one event
+# Show event by ID
 
 **URL** : `/events/{id}`
 
@@ -90,7 +90,6 @@
 }
 ```
 
+## Error Response 
 
-
-
-
+**Code** : `404 NOT FOUND`
