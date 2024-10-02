@@ -1,7 +1,6 @@
 package ticketguru.guru.Entities;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;

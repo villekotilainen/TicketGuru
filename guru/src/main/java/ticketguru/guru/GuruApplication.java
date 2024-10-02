@@ -3,7 +3,6 @@ package ticketguru.guru;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import org.h2.engine.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
