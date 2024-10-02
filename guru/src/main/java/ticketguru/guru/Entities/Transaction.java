@@ -1,5 +1,6 @@
 package ticketguru.guru.Entities;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -17,7 +18,7 @@ public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long transactionId;
-    private Date transactionDate;
+    private LocalDateTime transactionDate;
     private Double totalSum;
     private Boolean succeeded;
 
@@ -28,7 +29,7 @@ public class Transaction {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "transaction") //one-to-many realationship with Ticket
     private List<Ticket> tickets;
 
-    public Transaction(Long transactionId, Date transactionDate, Double totalSum, Boolean succeeded, TGUser user) {
+    public Transaction(Long transactionId, LocalDateTime transactionDate, Double totalSum, Boolean succeeded, TGUser user) {
         this.transactionId = transactionId;
         this.transactionDate = transactionDate;
         this.totalSum = totalSum;
@@ -47,11 +48,11 @@ public class Transaction {
         this.transactionId = transactionId;
     }
 
-    public Date getTransactionDate() {
+    public LocalDateTime getTransactionDate() {
         return transactionDate;
     }
 
-    public void setTransactionDate(Date transactionDate) {
+    public void setTransactionDate(LocalDateTime transactionDate) {
         this.transactionDate = transactionDate;
     }
 

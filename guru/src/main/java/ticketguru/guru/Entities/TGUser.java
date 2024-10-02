@@ -34,6 +34,17 @@ public class TGUser {
         this.userrole = userrole;
     }
 
+    // User ilman roolia testailua varten!
+    public TGUser(Long userId, String email, String firstName, String lastName, String password, String address, String phone) {
+        this.userId = userId;
+        this.email = email;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.password = password;
+        this.address = address;
+        this.phone = phone;
+    }
+
     public TGUser() {
     }
 

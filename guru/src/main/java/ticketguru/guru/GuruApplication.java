@@ -1,7 +1,9 @@
 package ticketguru.guru;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
+import org.h2.engine.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -10,8 +12,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
 import ticketguru.guru.Entities.Event;
+import ticketguru.guru.Entities.TGUser;
+import ticketguru.guru.Entities.Transaction;
 import ticketguru.guru.Entities.Venue;
 import ticketguru.guru.Repositories.EventRepository;
+import ticketguru.guru.Repositories.TGUserRepository;
+import ticketguru.guru.Repositories.TransactionRepository;
 import ticketguru.guru.Repositories.VenueRepository;
 
 @SpringBootApplication
@@ -24,7 +30,7 @@ public class GuruApplication {
 	}
 
 	@Bean
-	public CommandLineRunner createStarterData(EventRepository eventRepository, VenueRepository venueRepository) {
+	public CommandLineRunner createStarterData(EventRepository eventRepository, VenueRepository venueRepository, TGUserRepository tgUserRepository, TransactionRepository transactionRepository) {
 		return (args) -> {
 			log.info("Creating event");
 			Venue venue1 = new Venue(1L, "Suvilahti", "Sörnäisten rantatie 22, Helsinki", "Suvilahden tapahtumakenttä.");
@@ -39,6 +45,10 @@ public class GuruApplication {
 			eventRepository.save(event1);
 			eventRepository.save(event2);
 			eventRepository.save(event3);
+            TGUser tgUser1 = new TGUser(1L, "pekka.puupaa@hotmail.com", "Pekka", "Puupää", "khfdnslfåpdfj", "Kaivokatu 1, Helsinki", "4587624");
+            tgUserRepository.save(tgUser1);
+            Transaction transaction1 = new Transaction(1L, LocalDateTime.of(2024, 10, 5, 12, 12), 22.90, true, tgUser1);
+            transactionRepository.save(transaction1);
 		};
 	}
 }
