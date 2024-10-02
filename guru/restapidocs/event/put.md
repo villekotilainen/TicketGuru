@@ -1,6 +1,6 @@
 # Update existing event
 
-**URL** : `/api/event`
+**URL** : `/api/events`
 
 **Method** : `/PUT`
 

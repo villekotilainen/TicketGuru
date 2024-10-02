@@ -1,6 +1,6 @@
 # Create new event
 
-**URL** : `/api/event`
+**URL** : `/api/events`
 
 **Method** : `/POST`
 
