@@ -12,10 +12,12 @@ import org.springframework.context.annotation.Bean;
 
 import ticketguru.guru.Entities.Event;
 import ticketguru.guru.Entities.TGUser;
+import ticketguru.guru.Entities.TicketType;
 import ticketguru.guru.Entities.Transaction;
 import ticketguru.guru.Entities.Venue;
 import ticketguru.guru.Repositories.EventRepository;
 import ticketguru.guru.Repositories.TGUserRepository;
+import ticketguru.guru.Repositories.TicketTypeRepository;
 import ticketguru.guru.Repositories.TransactionRepository;
 import ticketguru.guru.Repositories.VenueRepository;
 
@@ -29,7 +31,7 @@ public class GuruApplication {
 	}
 
 	@Bean
-	public CommandLineRunner createStarterData(EventRepository eventRepository, VenueRepository venueRepository, TGUserRepository tgUserRepository, TransactionRepository transactionRepository) {
+	public CommandLineRunner createStarterData(EventRepository eventRepository, VenueRepository venueRepository, TGUserRepository tgUserRepository, TransactionRepository transactionRepository, TicketTypeRepository ticketTypeRepository) {
 		return (args) -> {
 			log.info("Creating event");
 			Venue venue1 = new Venue(1L, "Suvilahti", "Sörnäisten rantatie 22, Helsinki", "Suvilahden tapahtumakenttä.");
@@ -44,6 +46,8 @@ public class GuruApplication {
 			eventRepository.save(event1);
 			eventRepository.save(event2);
 			eventRepository.save(event3);
+            TicketType ticketType1 = new TicketType(1L, 19.90, "Normaali", 200, event1);
+            ticketTypeRepository.save(ticketType1);
             TGUser tgUser1 = new TGUser(1L, "pekka.puupaa@hotmail.com", "Pekka", "Puupää", "khfdnslfåpdfj", "Kaivokatu 1, Helsinki", "4587624");
             tgUserRepository.save(tgUser1);
             Transaction transaction1 = new Transaction(1L, LocalDateTime.of(2024, 10, 5, 12, 12), 22.90, true, tgUser1);
