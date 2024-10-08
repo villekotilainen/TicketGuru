@@ -1,4 +1,4 @@
-# Create new event
+# Create new ticket
 
 **URL** : `/api/events`
 

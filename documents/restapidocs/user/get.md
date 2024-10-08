@@ -39,7 +39,7 @@
 ]
 ```
 
-# Show event by ID
+# Show user by ID
 
 **URL** : `/events/{id}`
 
