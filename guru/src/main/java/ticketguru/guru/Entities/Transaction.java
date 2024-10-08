@@ -3,6 +3,8 @@ package ticketguru.guru.Entities;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -25,6 +27,7 @@ public class Transaction {
     @JoinColumn(name = "userId") //many-to-one relationship with User
     private TGUser user;
 
+    @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "transaction") //one-to-many realationship with Ticket
     private List<Ticket> tickets;
 
