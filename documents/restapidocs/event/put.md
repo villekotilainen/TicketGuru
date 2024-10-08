@@ -1,22 +1,22 @@
-# Create new event
+# Update existing event
 
-**URL** : `/api/event`
+**URL** : `/api/events/{id}`
 
-**Method** : `/POST`
+**Method** : `/PUT`
 
-**Path parameters** : None
+**Path parameters** : `id`
 
 **Query parameters** : None
 
 ## Success Response 
 
-**Code** : `201 CREATED`
+**Code** : `200 OK`
 
 **Request body**
 
 ```json
 {
-  "eventId": 4,
+  "eventId": 1,
   "eventName": "Testi",
   "startTime": "2025-07-25",
   "endTime": "2025-07-27",
@@ -29,16 +29,20 @@
 
 ```json
 {
-    "eventId": 4,
+    "eventId": 1,
     "eventName": "Testi",
     "startTime": "2025-07-25",
     "endTime": "2025-07-27",
     "eventDescription": "Testi",
     "venue": {
         "venueId": 2,
-        "venueName": "Ruissalo",
-        "address": "Kansanpuistontie 20, Turku",
-        "venueDescription": "Ruissalo on Turun kaupunkiin kuuluva saari."
+        "venueName": null,
+        "address": null,
+        "venueDescription": null
     }
 }
 ```
+
+## Error Response 
+
+**Code** : `404 NOT FOUND`

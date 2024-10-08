@@ -51,7 +51,7 @@ Esitetään käyttöliittymän tärkeimmät (vain ne!) näkymät sekä niiden v�
 Jos näkymän tarkoitus ei ole itsestään selvä, se pitää kuvata lyhyesti.
 
 ## Tietokanta
-![alt text](./resources/tietokantakaavio.jpg "Relational diagram")
+![alt text](./documents/tietokantakaavio.jpg "Relational diagram")
 
 ## Tietohakemisto
 
@@ -148,6 +148,9 @@ Missä mikäkin järjestelmän komponentti ajetaan (tietokone, palvelinohjelma) 
 Palvelintoteutuksen yleiskuvaus: teknologiat, deployment-ratkaisut yms.
 Keskeisten rajapintojen kuvaukset, esimerkit REST-rajapinta. Tarvittaessa voidaan rajapinnan käyttöä täsmentää UML-sekvenssikaavioilla.
 Toteutuksen yleisiä ratkaisuja, esim. turvallisuus.
+
+### REST-rajapinnan kuvaus
+[REST-rajapinta](./documents/restapidocs/)
 
 ### Tämän lisäksi
 
