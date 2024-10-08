@@ -34,3 +34,27 @@
 [PUT Venue](../restapidocs/venue/put.md)
 
 [DELETE Venue](../restapidocs/venue/delete.md)
+
+
+## User
+
+
+[GET User](../restapidocs/user/get.md)
+
+[POST User](../restapidocs/user/post.md)
+
+[PUT User](../restapidocs/user/put.md)
+
+[DELETE User](../restapidocs/user/delete.md)
+
+
+## Ticket
+
+
+[GET Ticket](../restapidocs/ticket/get.md)
+
+[POST Ticket](../restapidocs/ticket/post.md)
+
+[PUT Ticket](../restapidocs/ticket/put.md)
+
+[DELETE Ticket](../restapidocs/ticket/delete.md)
