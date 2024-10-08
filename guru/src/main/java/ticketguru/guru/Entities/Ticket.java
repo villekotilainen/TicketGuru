@@ -1,5 +1,9 @@
 package ticketguru.guru.Entities;
 
+import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -13,7 +17,7 @@ public class Ticket {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long ticketId;
     private String hashcode;
-    private String ticketUsedDate;
+    private LocalDateTime ticketUsedDate;
 
     @ManyToOne
     @JoinColumn(name = "transactionId") //many-to-one relationship with Transaction
@@ -23,11 +27,17 @@ public class Ticket {
     @JoinColumn(name = "ticketTypeId") //many-to-one relationship with TicketType
     private TicketType ticketType;
 
-    public Ticket(Long ticketId, String hashcode, String ticketUsedDate, TicketType ticketType) {
+    public Ticket(Long ticketId, String hashcode, LocalDateTime ticketUsedDate, TicketType ticketType, Transaction transaction) {
         this.ticketId = ticketId;
         this.hashcode = hashcode;
         this.ticketUsedDate = ticketUsedDate;
         this.ticketType = ticketType;
+        this.transaction = transaction;
+    }
+    public Ticket(Long ticketId, String hashcode, LocalDateTime ticketUsedDate) {
+        this.ticketId = ticketId;
+        this.hashcode = hashcode;
+        this.ticketUsedDate = ticketUsedDate;
     }
 
     public Ticket() {
@@ -49,11 +59,11 @@ public class Ticket {
         this.hashcode = hashcode;
     }
 
-    public String getTicketUsedDate() {
+    public LocalDateTime getTicketUsedDate() {
         return ticketUsedDate;
     }
 
-    public void setTicketUsedDate(String ticketUsedDate) {
+    public void setTicketUsedDate(LocalDateTime ticketUsedDate) {
         this.ticketUsedDate = ticketUsedDate;
     }
 
