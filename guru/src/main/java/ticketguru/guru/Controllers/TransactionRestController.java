@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ticketguru.guru.Entities.Transaction;
 import ticketguru.guru.Repositories.TransactionRepository;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 @RequestMapping("/api/transactions")
@@ -38,6 +40,19 @@ public class TransactionRestController {
         return transaction.map(ResponseEntity::ok)
                           .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
+
+    @GetMapping("/{id}/user-id")
+    public ResponseEntity<Long> getUserIdByTransactionId(@PathVariable Long id) {
+        Optional<Transaction> transaction = transactionRepository.findById(id);
+        
+        if (transaction.isPresent()) {
+            Long userId = transaction.get().getUser().getUserId();
+            return ResponseEntity.ok(userId);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+    
 
     // POST: Lisää uusi transaktio
     @PostMapping
