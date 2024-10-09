@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tarkastajasivu</title>
+    <link rel="stylesheet" href="yleinen.css">
+    <script>
+        function tarkasta() {
+            var lippuNumero = document.getElementById("lippu").value;
+            if (lippuNumero === "1234") {
+                alert("Oikein");
+            } else {
+                alert("Lippua ei ole olemassa");
+            }
+        }
+    </script>
+</head>
+<body>
+    <div style="text-align: center;">
+        <a href="etusivu.html"><button class="button-logout">kirjaudu ulos</button></a>
+        <label for="lippu">Lipun numero:</label>
+        <input type="text" id="lippu" name="lippu" required><br><br>
+        <input type="button" value="Tarkasta" class="button" onclick="tarkasta()"><br><br>
+    </div>
+</body>
+</html>
