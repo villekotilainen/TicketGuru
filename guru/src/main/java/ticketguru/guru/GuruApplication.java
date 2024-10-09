@@ -54,14 +54,14 @@ public class GuruApplication {
             TGUser tgUser2 = new TGUser(2L, "mikko.mallikas@hotmail.com", "Mikko", "Mallikas", "dfhdgjfsfgj", "Työnjohtajankatu 7, Helsinki", "4587624");
 			tgUserRepository.save(tgUser1);
             tgUserRepository.save(tgUser2);
-            Transaction transaction1 = new Transaction(1L, LocalDateTime.of(2024, 10, 5, 12, 12), 22.90, true, tgUser1);
-			Transaction transaction2 = new Transaction(2L, LocalDateTime.of(2024, 9, 6, 11, 15), 25.20, true, tgUser2);
-            transactionRepository.save(transaction1);
-            transactionRepository.save(transaction2);
 			Ticket ticket1 = new Ticket(1L, "b3991bbf55624bef783856baec821d86", LocalDateTime.of(2024, 10, 5, 12, 12));
 			Ticket ticket2 = new Ticket(2L, "4c9a8daae6643d5bd51f43c917d90150", LocalDateTime.of(2024, 1, 6, 11, 13));
 			ticketRepository.save(ticket1);
 			ticketRepository.save(ticket2);
+            Transaction transaction1 = new Transaction(1L, LocalDateTime.of(2024, 10, 5, 12, 12), 22.90, true, tgUser1);
+			Transaction transaction2 = new Transaction(2L, LocalDateTime.of(2024, 9, 6, 11, 15), 25.20, true, tgUser2);
+            transactionRepository.save(transaction1);
+            transactionRepository.save(transaction2);
 		};
 	}
 }
