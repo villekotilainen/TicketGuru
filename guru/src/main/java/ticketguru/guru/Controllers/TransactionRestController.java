@@ -41,19 +41,6 @@ public class TransactionRestController {
                           .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    @GetMapping("/{id}/user-id")
-    public ResponseEntity<Long> getUserIdByTransactionId(@PathVariable Long id) {
-        Optional<Transaction> transaction = transactionRepository.findById(id);
-        
-        if (transaction.isPresent()) {
-            Long userId = transaction.get().getUser().getUserId();
-            return ResponseEntity.ok(userId);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-    }
-    
-
     // POST: Lisää uusi transaktio
     @PostMapping
     public ResponseEntity<Transaction> createTransaction(@RequestBody Transaction newTransaction) {
