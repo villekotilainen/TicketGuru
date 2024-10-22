@@ -26,7 +26,7 @@ public class Userrole {
 
     @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "userrole") //one-to-many relationship with TGUser
-    private List<TGUser> users;
+    private Long users;
 
     public Userrole(Long userroleId, String role) {
         this.userroleId = userroleId;
@@ -52,8 +52,8 @@ public class Userrole {
         this.role = role;
     }
 
-    public void setUserId(List<TGUser> users) {
-        this.users = users;
+    public void setUserId(Long long1) {
+        this.users = long1;
     }
 
     @Override
