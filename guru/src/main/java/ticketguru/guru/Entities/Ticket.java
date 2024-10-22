@@ -2,8 +2,11 @@ package ticketguru.guru.Entities;
 
 import java.time.LocalDateTime;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
+import jakarta.validation.constraints.Size;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -16,7 +19,12 @@ public class Ticket {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long ticketId;
+
+    @NotNull(message = "Hascode is required")
+    @Size(min = 1, max = 255, message = "Hashcode must be between 1 and 255 characters")
     private String hashcode;
+
+    @PastOrPresent(message = "Ticket used date cannot be in the future")
     private LocalDateTime ticketUsedDate;
 
     @ManyToOne
