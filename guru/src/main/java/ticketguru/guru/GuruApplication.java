@@ -50,8 +50,8 @@ public class GuruApplication {
 			eventRepository.save(event1);
 			eventRepository.save(event2);
 			eventRepository.save(event3);
-            TGUser tgUser1 = new TGUser(1L, "pekka.puupaa@hotmail.com", "Pekka", "Puupää", "khfdnslfåpdfj", "Kaivokatu 1, Helsinki", "4587624");
-            TGUser tgUser2 = new TGUser(2L, "mikko.mallikas@hotmail.com", "Mikko", "Mallikas", "dfhdgjfsfgj", "Työnjohtajankatu 7, Helsinki", "4587624");
+            TGUser tgUser1 = new TGUser(1L, "pekka.puupaa@hotmail.com", "Pekka", "Puupää", "$2a$12$fxyuE.zAgt.daX/Nfbnu9OH4bgZdsBHBFpDTnpNAQypOTnf4L8Ga.", "Kaivokatu 1, Helsinki", "4587624");
+            TGUser tgUser2 = new TGUser(2L, "mikko.mallikas@hotmail.com", "Mikko", "Mallikas", "$2a$12$Sp/JLC1V3u9O1SH3Me.Wb.lpDMr6C1WIdsGumt.OdLN7RKMZOJkxO", "Työnjohtajankatu 7, Helsinki", "4587624");
 			tgUserRepository.save(tgUser1);
             tgUserRepository.save(tgUser2);
 			Ticket ticket1 = new Ticket(1L, "b3991bbf55624bef783856baec821d86", LocalDateTime.of(2024, 10, 5, 12, 12));
