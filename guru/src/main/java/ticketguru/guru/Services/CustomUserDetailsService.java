@@ -3,11 +3,10 @@ package ticketguru.guru.Services;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,17 +14,16 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     private final Map<String, UserDetails> users = new HashMap<>();
 
-    @Autowired
-    public CustomUserDetailsService() {
-        // Add some users for demonstration purposes
+    public CustomUserDetailsService(PasswordEncoder passwordEncoder) {
+        // Add sample users with encoded passwords for demo purposes
         users.put("user", org.springframework.security.core.userdetails.User.withUsername("user")
-                .password(new BCryptPasswordEncoder().encode("user"))
-                .authorities("ROLE_USER")
+                .password(passwordEncoder.encode("user"))
+                .roles("USER")
                 .build());
-        
+
         users.put("admin", org.springframework.security.core.userdetails.User.withUsername("admin")
-                .password(new BCryptPasswordEncoder().encode("admin"))
-                .authorities("ROLE_ADMIN")
+                .password(passwordEncoder.encode("admin"))
+                .roles("ADMIN")
                 .build());
     }
 

@@ -9,6 +9,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import ticketguru.guru.Entities.Event;
 import ticketguru.guru.Entities.TGUser;
@@ -26,42 +27,67 @@ import ticketguru.guru.Repositories.VenueRepository;
 @SpringBootApplication
 public class GuruApplication {
 
-	private static final Logger log = LoggerFactory.getLogger(GuruApplication.class);
+    private static final Logger log = LoggerFactory.getLogger(GuruApplication.class);
 
-	public static void main(String[] args) {
-		SpringApplication.run(GuruApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(GuruApplication.class, args);
+    }
 
-	@Bean
-	public CommandLineRunner createStarterData(EventRepository eventRepository, VenueRepository venueRepository, 
-	TGUserRepository tgUserRepository, TransactionRepository transactionRepository, UserroleRepository userroleRepository,
-	TicketRepository ticketRepository) {
-		return (args) -> {
-			log.info("Creating event");
-			Venue venue1 = new Venue(1L, "Suvilahti", "Sörnäisten rantatie 22, Helsinki", "Suvilahden tapahtumakenttä.");
-			Venue venue2 = new Venue(2L, "Ruissalo", "Kansanpuistontie 20, Turku", "Ruissalo on Turun kaupunkiin kuuluva saari.");
-			Venue venue3 = new Venue(3L, "Ratinan stadion", "Ratinan rantatie 1, Tampere", "Tampereella Ratinan kaupungiosassa sijaitseva stadion");
-			venueRepository.save(venue1);
-			venueRepository.save(venue2);
-			venueRepository.save(venue3);
-			Event event1 = new Event(1L, "Tuska", LocalDate.of(2025,6,27), LocalDate.of(2025,6,29), "Tuska Festivaali on pohjoismaiden suurimpia raskaanmusiikin tapahtumia.", venue1);
-			Event event2 = new Event(2L, "Ruisrock", LocalDate.of(2025,8,16), LocalDate.of(2025,8,17), "Ruisrock on Turun Ruissalossa heinäkuun ensimmäisenä viikonloppuna järjestettävä Suomen merkittävimpiin festivaaleihin kuuluva musiikkifestivaali.", venue2);
-			Event event3 = new Event(3L, "Blockfest", LocalDate.of(2025,7,4), LocalDate.of(2025,7,6), "Ratinan stadionin ja Ratinanniemen tapahtumapuiston alueella vuosittain järjestettävä Pohjoismaiden suurin hiphop-festivaali.", venue3);
-			eventRepository.save(event1);
-			eventRepository.save(event2);
-			eventRepository.save(event3);
-            TGUser tgUser1 = new TGUser(1L, "pekka.puupaa@hotmail.com", "Pekka", "Puupää", "$2a$12$fxyuE.zAgt.daX/Nfbnu9OH4bgZdsBHBFpDTnpNAQypOTnf4L8Ga.", "Kaivokatu 1, Helsinki", "4587624");
-            TGUser tgUser2 = new TGUser(2L, "mikko.mallikas@hotmail.com", "Mikko", "Mallikas", "$2a$12$Sp/JLC1V3u9O1SH3Me.Wb.lpDMr6C1WIdsGumt.OdLN7RKMZOJkxO", "Työnjohtajankatu 7, Helsinki", "4587624");
-			tgUserRepository.save(tgUser1);
+    @Bean
+    public CommandLineRunner createStarterData(
+            EventRepository eventRepository,
+            VenueRepository venueRepository,
+            TGUserRepository tgUserRepository,
+            TransactionRepository transactionRepository,
+            UserroleRepository userroleRepository,
+            TicketRepository ticketRepository,
+            PasswordEncoder passwordEncoder) {
+        return (args) -> {
+            log.info("Creating initial data...");
+
+            // Create and save venues
+            Venue venue1 = new Venue(null, "Suvilahti", "Sörnäisten rantatie 22, Helsinki", "Suvilahden tapahtumakenttä.");
+            Venue venue2 = new Venue(null, "Ruissalo", "Kansanpuistontie 20, Turku", "Ruissalo on Turun kaupunkiin kuuluva saari.");
+            Venue venue3 = new Venue(null, "Ratinan stadion", "Ratinan rantatie 1, Tampere", "Tampereella Ratinan kaupungiosassa sijaitseva stadion");
+            venueRepository.save(venue1);
+            venueRepository.save(venue2);
+            venueRepository.save(venue3);
+
+            // Create and save events
+            Event event1 = new Event(null, "Tuska", LocalDate.of(2025, 6, 27), LocalDate.of(2025, 6, 29), "Tuska Festivaali on pohjoismaiden suurimpia raskaanmusiikin tapahtumia.", venue1);
+            Event event2 = new Event(null, "Ruisrock", LocalDate.of(2025, 8, 16), LocalDate.of(2025, 8, 17), "Ruisrock on Turun Ruissalossa järjestettävä musiikkifestivaali.", venue2);
+            Event event3 = new Event(null, "Blockfest", LocalDate.of(2025, 7, 4), LocalDate.of(2025, 7, 6), "Pohjoismaiden suurin hiphop-festivaali.", venue3);
+            eventRepository.save(event1);
+            eventRepository.save(event2);
+            eventRepository.save(event3);
+
+            // Create and save user roles
+            Userrole adminRole = new Userrole(null, "ROLE_ADMIN");
+            Userrole userRole = new Userrole(null, "ROLE_USER");
+            userroleRepository.save(adminRole);
+            userroleRepository.save(userRole);
+
+            // Create and save users with usernames "user" and "admin" and respective roles
+            TGUser tgUser1 = new TGUser(null, "user", "Pekka", "Puupää", 
+                    passwordEncoder.encode("user"), "Kaivokatu 1, Helsinki", "4587624", userRole);
+            TGUser tgUser2 = new TGUser(null, "admin", "Mikko", "Mallikas", 
+                    passwordEncoder.encode("admin"), "Työnjohtajankatu 7, Helsinki", "4587624", adminRole);
+            tgUserRepository.save(tgUser1);
             tgUserRepository.save(tgUser2);
-			Ticket ticket1 = new Ticket(1L, "b3991bbf55624bef783856baec821d86", LocalDateTime.of(2024, 10, 5, 12, 12));
-			Ticket ticket2 = new Ticket(2L, "4c9a8daae6643d5bd51f43c917d90150", LocalDateTime.of(2024, 1, 6, 11, 13));
-			ticketRepository.save(ticket1);
-			ticketRepository.save(ticket2);
-            Transaction transaction1 = new Transaction(1L, LocalDateTime.of(2024, 10, 5, 12, 12), 22.90, true, tgUser1);
-			Transaction transaction2 = new Transaction(2L, LocalDateTime.of(2024, 9, 6, 11, 15), 25.20, true, tgUser2);
+
+            // Create and save tickets
+            Ticket ticket1 = new Ticket(null, "b3991bbf55624bef783856baec821d86", LocalDateTime.of(2024, 10, 5, 12, 12));
+            Ticket ticket2 = new Ticket(null, "4c9a8daae6643d5bd51f43c917d90150", LocalDateTime.of(2024, 1, 6, 11, 13));
+            ticketRepository.save(ticket1);
+            ticketRepository.save(ticket2);
+
+            // Create and save transactions
+            Transaction transaction1 = new Transaction(null, LocalDateTime.of(2024, 10, 5, 12, 12), 22.90, true, tgUser1);
+            Transaction transaction2 = new Transaction(null, LocalDateTime.of(2024, 9, 6, 11, 15), 25.20, true, tgUser2);
             transactionRepository.save(transaction1);
             transactionRepository.save(transaction2);
-		};
-	}
+
+            log.info("Sample data created successfully.");
+        };
+    }
 }
