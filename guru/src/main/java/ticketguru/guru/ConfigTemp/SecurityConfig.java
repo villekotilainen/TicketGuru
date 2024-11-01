@@ -1,4 +1,4 @@
-package ticketguru.guru.config;
+package ticketguru.guru.ConfigTemp;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
