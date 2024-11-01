@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ticketguru.guru.Entities.Transaction;
 import ticketguru.guru.Repositories.TransactionRepository;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 @RequestMapping("/api/transactions")

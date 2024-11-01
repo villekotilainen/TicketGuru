@@ -53,7 +53,10 @@ public class Userrole {
     }
 
     public void setUsers(List<TGUser> users) {
-        this.users = users;
+         this.users = users;
+    }
+    public void setUserId(List<TGUser> users) {
+          this.userId = userId;
     }
 
     @Override

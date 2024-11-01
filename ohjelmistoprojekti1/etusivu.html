@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TicketGuru</title>
+    <link rel="stylesheet" type="text/css" href="yleinen.css">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            text-align: center;
+        }
+        img {
+            width: 600px;
+            height: auto;
+        }
+
+        input[type="text"], input[type="password"] {
+            width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="logo.png" alt="TicketGuru Logo">
+        <form>
+            <label for="username">Käyttäjätunnus:</label>
+            <input type="text" id="username" name="username" required><br><br>
+            <label for="password">Salasana:</label>
+            <input type="password" id="password" name="password" required><br><br>
+            <input type="submit" value="Kirjaudu" class="button"><br><br>
+            <button style="background-color: goldenrod;"><a href="myyntisivu.html">MyyjäTest</a></button>
+            <button style="background-color: goldenrod;"><a href="tarkastajasivu.html">TarkastajaTest</a></button>
+        </form>
+    </div>
+</body>
+</html>
