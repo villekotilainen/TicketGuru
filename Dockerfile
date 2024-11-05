@@ -1,6 +1,6 @@
 FROM eclipse-temurin:17-jdk-focal as builder
 WORKDIR /opt/app
-COPY guru/.mvn/ .mvn
+# COPY guru/.mvn/ .mvn
 COPY guru/mvnw .
 COPY guru/pom.xml .
 RUN chmod +x ./mvnw
