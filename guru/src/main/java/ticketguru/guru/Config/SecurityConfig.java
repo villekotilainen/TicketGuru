@@ -25,7 +25,7 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/h2-console/**").permitAll() // Allow access to H2 console
-                .requestMatchers("/api/**").hasAnyRole("USER", "ADMIN") // Allow API access to both roles
+                .requestMatchers("/api/**").permitAll() // Allow API access to both roles
                 .requestMatchers("/admin/**").hasRole("ADMIN") // Require ADMIN role for admin paths
                 .anyRequest().authenticated() // Require authentication for any other request
             )
