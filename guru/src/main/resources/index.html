@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lippu Client</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        input, button {
+            margin: 10px 0;
+        }
+        .response {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>Lippu Client</h1>
+    <div>
+        <h2>Hae lipun tiedot</h2>
+        <input type="text" id="ticketCode" placeholder="Anna lippukoodi">
+        <button onclick="fetchTicket()">Hae</button>
+    </div>
+
+    <div>
+        <h2>Merkitse lippu käytetyksi</h2>
+        <button onclick="useTicket()">Merkitse käytetyksi</button>
+    </div>
+
+    <div id="response" class="response"></div>
+
+    <script>
+        const apiUrl = 'https://backend.example.com/tickets';
+
+        async function fetchTicket() {
+            const code = document.getElementById('ticketCode').value;
+            const responseDiv = document.getElementById('response');
+            
+            if (!code) {
+                responseDiv.innerHTML = 'Anna lippukoodi!';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${apiUrl}/${code}`);
+                if (!response.ok) {
+                    throw new Error(`Virhe: ${response.status}`);
+                }
+                const data = await response.json();
+                responseDiv.innerHTML = `
+                    <h3>Lipun tiedot</h3>
+                    <p><strong>Koodi:</strong> ${data.code}</p>
+                    <p><strong>Voimassa:</strong> ${data.valid ? 'Kyllä' : 'Ei'}</p>
+                    <p><strong>Käytetty:</strong> ${data.used ? 'Kyllä' : 'Ei'}</p>
+                `;
+            } catch (error) {
+                responseDiv.innerHTML = `Virhe: ${error.message}`;
+            }
+        }
+
+        async function useTicket() {
+            const code = document.getElementById('ticketCode').value;
+            const responseDiv = document.getElementById('response');
+
+            if (!code) {
+                responseDiv.innerHTML = 'Anna lippukoodi!';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${apiUrl}/${code}/use`, {
+                    method: 'POST'
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Virhe: ${response.status}`);
+                }
+
+                const data = await response.json();
+                responseDiv.innerHTML = `
+                    <h3>Lippu merkitty käytetyksi</h3>
+                    <p><strong>Koodi:</strong> ${data.code}</p>
+                    <p><strong>Käytetty:</strong> ${data.used ? 'Kyllä' : 'Ei'}</p>
+                `;
+            } catch (error) {
+                responseDiv.innerHTML = `Virhe: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>
