@@ -22,6 +22,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        /* 
         http
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/h2-console/**").permitAll() // Allow access to H2 console
@@ -29,11 +30,13 @@ public class SecurityConfig {
                 .requestMatchers("/admin/**").hasRole("ADMIN") // Require ADMIN role for admin paths
                 .anyRequest().authenticated() // Require authentication for any other request
             )
+        
             .httpBasic() // Enable basic HTTP authentication
             .and()
             .csrf(csrf -> csrf.disable()) // Disable CSRF for simplicity, enable if needed
             .headers(headers -> headers.frameOptions().disable()); // Enable H2 console frames
-
+        */
+        http.csrf(csrf -> csrf.disable());
         return http.build();
     }
 }

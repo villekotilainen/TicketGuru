@@ -35,6 +35,8 @@ public class Ticket {
     @JoinColumn(name = "ticketTypeId") //many-to-one relationship with TicketType
     private TicketType ticketType;
 
+    private boolean used = false;
+
     public Ticket(Long ticketId, String hashcode, LocalDateTime ticketUsedDate, TicketType ticketType, Transaction transaction) {
         this.ticketId = ticketId;
         this.hashcode = hashcode;
@@ -90,9 +92,18 @@ public class Ticket {
     public void setTicketType(TicketType ticketType) {
         this.ticketType = ticketType;
     }  
+
+    public boolean isUsed() {
+        return used;
+    }
+
+    public void setUsed(boolean used) {
+        this.used = used;
+    }
+
     @Override
     public String toString() {
         return "Ticket [ticketId=" + ticketId + ", hashcode=" + hashcode + ", ticketUsedDate="
-                + ticketUsedDate + ", ticketType=" + ticketType;
+                + ticketUsedDate + ", ticketType=" + ticketType + ", used=" + used + "]";
     }
 }

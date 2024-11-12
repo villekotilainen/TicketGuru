@@ -1,5 +1,6 @@
 package ticketguru.guru.Controllers;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -7,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -76,4 +78,20 @@ public class TicketRestController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
+
+    // POST: Validate ticket
+    @CrossOrigin(origins = "*")
+    @PostMapping("/validate")
+    public ResponseEntity<String> validateTicket(@RequestBody Ticket ticket) {
+        Optional<Ticket> existingTicket = ticketRepository.findById(ticket.getTicketId());
+
+        if (existingTicket.isPresent() && !existingTicket.get().isUsed()) {
+            existingTicket.get().setTicketUsedDate(LocalDateTime.now()); // Mark ticket as used
+            ticketRepository.save(existingTicket.get());
+            return ResponseEntity.ok("Ticket is valid.");
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or already used ticket");
+        }
+    }
+    
 }
