@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,9 +10,12 @@
             font-family: Arial, sans-serif;
             margin: 20px;
         }
-        input, button {
+
+        input,
+        button {
             margin: 10px 0;
         }
+
         .response {
             margin-top: 20px;
             padding: 10px;
@@ -20,6 +24,7 @@
         }
     </style>
 </head>
+
 <body>
     <h1>Lippu Client</h1>
     <div>
@@ -36,29 +41,41 @@
     <div id="response" class="response"></div>
 
     <script>
-        const apiUrl = 'https://backend.example.com/tickets';
+        const apiUrl = 'https://ticketguru.hellmanstudios.fi/api/tickets';
+        const username = 'jane.doe@ticketguru.com';
+        const password = 'TicketInspector123';
+        const encodedCredentials = 'Basic ' + btoa(`${username}:${password}`);
 
         async function fetchTicket() {
             const code = document.getElementById('ticketCode').value;
             const responseDiv = document.getElementById('response');
-            
+
             if (!code) {
                 responseDiv.innerHTML = 'Anna lippukoodi!';
                 return;
             }
 
             try {
-                const response = await fetch(`${apiUrl}/${code}`);
+                const response = await fetch(`${apiUrl}/${code}`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": encodedCredentials,
+                        "Content-Type": "application/json"
+                    }
+                });
+
                 if (!response.ok) {
                     throw new Error(`Virhe: ${response.status}`);
                 }
+
                 const data = await response.json();
                 responseDiv.innerHTML = `
                     <h3>Lipun tiedot</h3>
-                    <p><strong>Koodi:</strong> ${data.code}</p>
-                    <p><strong>Voimassa:</strong> ${data.valid ? 'Kyllä' : 'Ei'}</p>
-                    <p><strong>Käytetty:</strong> ${data.used ? 'Kyllä' : 'Ei'}</p>
-                `;
+                    <p><strong>Koodi:</strong> ${data.ticketCode || data.code}</p>
+                    <p><strong>Voimassa:</strong> ${data.isValid ? 'Kyllä' : 'Ei'}</p>
+                    <p><strong>Käytetty:</strong> ${data.isUsed ? 'Kyllä' : 'Ei'}</p>
+
+        `;
             } catch (error) {
                 responseDiv.innerHTML = `Virhe: ${error.message}`;
             }
@@ -75,7 +92,11 @@
 
             try {
                 const response = await fetch(`${apiUrl}/${code}/use`, {
-                    method: 'POST'
+                    method: 'POST',
+                    headers: {
+                        'Authorization': encodedCredentials,
+                        'Content-Type': 'application/json'
+                    }
                 });
 
                 if (!response.ok) {
@@ -84,14 +105,16 @@
 
                 const data = await response.json();
                 responseDiv.innerHTML = `
-                    <h3>Lippu merkitty käytetyksi</h3>
-                    <p><strong>Koodi:</strong> ${data.code}</p>
-                    <p><strong>Käytetty:</strong> ${data.used ? 'Kyllä' : 'Ei'}</p>
-                `;
+            <h3>Lippu merkitty käytetyksi</h3>
+            <p><strong>Koodi:</strong> ${data.code}</p>
+            <p><strong>Käytetty:</strong> ${data.used ? 'Kyllä' : 'Ei'}</p>
+        `;
             } catch (error) {
                 responseDiv.innerHTML = `Virhe: ${error.message}`;
             }
         }
+
     </script>
 </body>
+
 </html>
