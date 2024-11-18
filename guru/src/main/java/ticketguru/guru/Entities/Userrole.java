@@ -56,10 +56,20 @@ public class Userrole {
          this.users = users;
     }
     
+    public UserrolePermissions getUserrolePermissions() {
+        return userrolePermissions;
+    }
 
+    public void setUserrolePermissions(UserrolePermissions userrolePermissions) {
+        this.userrolePermissions = userrolePermissions;
+    }
+
+    public List<TGUser> getUsers() {
+        return users;
+    }
+    
     @Override
     public String toString() {
         return "Userrole [userroleId=" + userroleId + ", role=" + role + "]";
     }
-    
 }

@@ -27,6 +27,9 @@ public class UserrolePermissions {
         this.permissionDescription = permissionDescription;
     }
 
+    public UserrolePermissions() {
+    }
+
     public Long getPermissionId() {
         return permissionId;
     }
