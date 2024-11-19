@@ -7,6 +7,7 @@ import ticketguru.guru.Entities.TGUser;
 import ticketguru.guru.Entities.Transaction;
 
 import java.util.List;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 
@@ -14,5 +15,5 @@ import java.util.Date;
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
     List<Transaction> findByUser(TGUser user);
     List<Transaction> findBySucceeded(Boolean succeeded);
-    List<Transaction> findByTransactionDate(Date transactionDate);
+    List<Transaction> findByTransactionDate(LocalDateTime transactionDate);
 }
