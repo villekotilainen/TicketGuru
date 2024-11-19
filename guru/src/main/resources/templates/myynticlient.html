@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Myynti Client</title>
+</head>
+<body>
+    <h1>Osta Lippu</h1>
+    <form id="ticketForm">
+        <label for="event">Valitse tapahtuma:</label>
+        <select id="event" name="event">
+            <option value="concert">Konsertti</option>
+            <option value="theater">Teatteri</option>
+            <option value="sports">Urheilu</option>
+        </select>
+        <br><br>
+        <label for="ticketType">Valitse lippu tyyppi:</label>
+        <select id="ticketType" name="ticketType">
+            <option value="regular">Normaali</option>
+            <option value="vip">VIP</option>
+        </select>
+        <br><br>
+        <button type="button" onclick="buyTicket()">Osta Lippu</button>
+    </form>
+
+    <script>
+        function buyTicket() {
+            alert("Lippu ostettu");
+        }
+    </script>
+</body>
+</html></select></html>
