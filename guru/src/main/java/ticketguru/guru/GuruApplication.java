@@ -14,12 +14,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import ticketguru.guru.Entities.Event;
 import ticketguru.guru.Entities.TGUser;
 import ticketguru.guru.Entities.Ticket;
+import ticketguru.guru.Entities.TicketType;
 import ticketguru.guru.Entities.Transaction;
 import ticketguru.guru.Entities.Userrole;
 import ticketguru.guru.Entities.Venue;
 import ticketguru.guru.Repositories.EventRepository;
 import ticketguru.guru.Repositories.TGUserRepository;
 import ticketguru.guru.Repositories.TicketRepository;
+import ticketguru.guru.Repositories.TicketTypeRepository;
 import ticketguru.guru.Repositories.TransactionRepository;
 import ticketguru.guru.Repositories.UserroleRepository;
 import ticketguru.guru.Repositories.VenueRepository;
@@ -41,6 +43,7 @@ public class GuruApplication {
             TransactionRepository transactionRepository,
             UserroleRepository userroleRepository,
             TicketRepository ticketRepository,
+            TicketTypeRepository ticketTypeRepository,
             PasswordEncoder passwordEncoder) {
         return (args) -> {
             log.info("Creating initial data...");
@@ -86,6 +89,22 @@ public class GuruApplication {
             Transaction transaction2 = new Transaction(null, LocalDateTime.of(2024, 9, 6, 11, 15), 25.20, true, tgUser2);
             transactionRepository.save(transaction1);
             transactionRepository.save(transaction2);
+
+            TicketType ticketType1 = new TicketType(null, 22.90, "Peruslippu", 100, event1);
+            TicketType ticketType2 = new TicketType(null, 25.20, "VIP-lippu", 50, event1);
+
+            TicketType ticketType3 = new TicketType(null, 22.90, "Peruslippu", 100, event2);
+            TicketType ticketType4 = new TicketType(null, 25.20, "VIP-lippu", 50, event2);
+
+            TicketType ticketType5 = new TicketType(null, 22.90, "Peruslippu", 100, event3);
+            TicketType ticketType6 = new TicketType(null, 25.20, "VIP-lippu", 50, event3);
+
+            ticketTypeRepository.save(ticketType1);
+            ticketTypeRepository.save(ticketType2);
+            ticketTypeRepository.save(ticketType3);
+            ticketTypeRepository.save(ticketType4);
+            ticketTypeRepository.save(ticketType5);
+            ticketTypeRepository.save(ticketType6);
 
             log.info("Sample data created successfully.");
         };

@@ -4,6 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Myynti Client</title>
+    <style>
+        .bottom-left {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+        }
+        .center-logo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    </style>
 </head>
 <body>
     <h1>Osta Lippu</h1>
@@ -13,13 +26,16 @@
             <option value="">Valitse tapahtuma</option>
         </select>
         <br><br>
-        <label for="ticketType">Valitse lippu tyyppi:</label>
-        <select id="ticketType" name="ticketType">
-            <option value="">Valitse lippu tyyppi</option>
-        </select>
-        <br><br>
-        <button type="button" onclick="createTicket()">Osta Lippu</button>
+
+        <div id="ticketTypesSection" style="display: none;">
+            <h2>Valitse lippu tyyppi ja määrä</h2>
+            <div id="ticketTypesContainer"></div>
+            <br><br>
+            <button type="button" onclick="createTicket()">Osta Lippu</button>
+        </div>
     </form>
+
+    <iframe src="https://giphy.com/embed/Jmlv4CUO1qWlGWJf3J" width="480" height="480" style="" frameBorder="0" class="giphy-embed bottom-left" allowFullScreen></iframe>
 
     <script>
         document.addEventListener('DOMContentLoaded', (event) => {
@@ -50,17 +66,22 @@
             try {
                 const response = await fetch(`http://localhost:8080/api/tickettypes/event/${eventId}`);
                 const ticketTypes = await response.json();
-                const ticketTypeSelect = document.getElementById('ticketType');
+                const ticketTypesContainer = document.getElementById('ticketTypesContainer');
 
                 
-                ticketTypeSelect.innerHTML = '<option value="">Valitse lippu tyyppi</option>';
+                ticketTypesContainer.innerHTML = '';
 
                 ticketTypes.forEach(ticketType => {
-                    const option = document.createElement('option');
-                    option.value = ticketType.ticketTypeId;
-                    option.text = ticketType.typeName;
-                    ticketTypeSelect.add(option);
+                    const div = document.createElement('div');
+                    div.innerHTML = `
+                        <label>${ticketType.typeName} (${ticketType.ticketPrice} €):</label>
+                        <input type="number" id="ticketType_${ticketType.ticketTypeId}" name="ticketType_${ticketType.ticketTypeId}" min="0" value="0">
+                        <br><br>
+                    `;
+                    ticketTypesContainer.appendChild(div);
                 });
+
+                document.getElementById('ticketTypesSection').style.display = 'block';
             } catch (error) {
                 console.error('Error loading ticket types:', error);
             }
@@ -68,22 +89,32 @@
 
         async function createTicket() {
             const event = document.getElementById('event').value;
-            const ticketType = document.getElementById('ticketType').value;
+            const ticketTypesContainer = document.getElementById('ticketTypesContainer');
+            const inputs = ticketTypesContainer.getElementsByTagName('input');
 
-            const ticketData = {
-                hashcode: event + '-' + ticketType, 
-                ticketUsedDate: null,
-                ticketType: { ticketTypeId: ticketType }, 
-                transaction: null 
-            };
+            const tickets = [];
+            for (let input of inputs) {
+                const ticketTypeId = input.id.split('_')[1];
+                const quantity = parseInt(input.value);
+                if (quantity > 0) {
+                    for (let i = 0; i < quantity; i++) {
+                        tickets.push({
+                            hashcode: event + '-' + ticketTypeId, 
+                            ticketUsedDate: null,
+                            ticketType: { ticketTypeId: ticketTypeId }, 
+                            transaction: null 
+                        });
+                    }
+                }
+            }
 
             try {
-                const response = await fetch('http://localhost:8080/api/tickets', {
+                const response = await fetch('http://localhost:8080/api/tickets/transaction', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(ticketData)
+                    body: JSON.stringify(tickets)
                 });
 
                 if (response.ok) {

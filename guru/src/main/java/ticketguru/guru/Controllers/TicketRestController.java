@@ -93,5 +93,12 @@ public class TicketRestController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or already used ticket");
         }
     }
+
+    @CrossOrigin(origins = "*")
+    @PostMapping("/transaction")
+    public ResponseEntity<List<Ticket>> createTickets(@Valid @RequestBody List<Ticket> newTickets) {
+        List<Ticket> savedTickets = ticketRepository.saveAll(newTickets);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedTickets);
+}
     
 }
