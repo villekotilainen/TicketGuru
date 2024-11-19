@@ -31,6 +31,14 @@ public class TicketType {
     @JoinColumn(name = "eventId") //many-to-one relationship with Event
     private Event event;
 
+    public TicketType(Long ticketTypeId, Double ticketPrice, String typeName, Integer totalCount, Event event) {
+        this.ticketTypeId = ticketTypeId;
+        this.ticketPrice = ticketPrice;
+        this.typeName = typeName;
+        this.totalCount = totalCount;
+        this.event = event;
+    }  
+
     public TicketType(Long ticketTypeId, Double ticketPrice, String typeName, Integer totalCount) {
         this.ticketTypeId = ticketTypeId;
         this.ticketPrice = ticketPrice;
