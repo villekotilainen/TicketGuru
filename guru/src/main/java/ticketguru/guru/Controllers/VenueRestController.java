@@ -54,7 +54,7 @@ public class VenueRestController {
         if (optionalVenue.isPresent()) {
             Venue existingVenue = optionalVenue.get();
             existingVenue.setVenueName(venueDetails.getVenueName());
-            existingVenue.setAdress(venueDetails.getAddress());
+            existingVenue.setAddress(venueDetails.getAddress());
             existingVenue.setVenueDescription(venueDetails.getVenueDescription());
 
             Venue updatedVenue = venueRepository.save(existingVenue);
