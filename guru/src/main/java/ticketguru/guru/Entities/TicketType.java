@@ -38,7 +38,7 @@ public class TicketType {
         this.totalCount = totalCount;
     }  
 
-    public TicketType() {
+    public TicketType(long l, String string, double d) {
     }
 
     public Long getTicketTypeId() {
