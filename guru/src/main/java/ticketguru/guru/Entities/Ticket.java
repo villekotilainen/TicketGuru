@@ -20,7 +20,7 @@ public class Ticket {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long ticketId;
 
-    @NotNull(message = "Hascode is required")
+    @NotNull(message = "Hashcode is required")
     @Size(min = 1, max = 255, message = "Hashcode must be between 1 and 255 characters")
     private String hashcode;
 

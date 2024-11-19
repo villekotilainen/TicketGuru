@@ -9,25 +9,94 @@
     <h1>Osta Lippu</h1>
     <form id="ticketForm">
         <label for="event">Valitse tapahtuma:</label>
-        <select id="event" name="event">
-            <option value="concert">Konsertti</option>
-            <option value="theater">Teatteri</option>
-            <option value="sports">Urheilu</option>
+        <select id="event" name="event" onchange="loadTicketTypes()">
+            <option value="">Valitse tapahtuma</option>
         </select>
         <br><br>
         <label for="ticketType">Valitse lippu tyyppi:</label>
         <select id="ticketType" name="ticketType">
-            <option value="regular">Normaali</option>
-            <option value="vip">VIP</option>
+            <option value="">Valitse lippu tyyppi</option>
         </select>
         <br><br>
-        <button type="button" onclick="buyTicket()">Osta Lippu</button>
+        <button type="button" onclick="createTicket()">Osta Lippu</button>
     </form>
 
     <script>
-        function buyTicket() {
-            alert("Lippu ostettu");
+        document.addEventListener('DOMContentLoaded', (event) => {
+            loadEvents();
+        });
+
+        async function loadEvents() {
+            try {
+                const response = await fetch('http://localhost:8080/api/events');
+                const events = await response.json();
+                const eventSelect = document.getElementById('event');
+
+                events.forEach(event => {
+                    const option = document.createElement('option');
+                    option.value = event.eventId;
+                    option.text = event.eventName;
+                    eventSelect.add(option);
+                });
+            } catch (error) {
+                console.error('Error loading events:', error);
+            }
+        }
+
+        async function loadTicketTypes() {
+            const eventId = document.getElementById('event').value;
+            if (!eventId) return;
+
+            try {
+                const response = await fetch(`http://localhost:8080/api/tickettypes/event/${eventId}`);
+                const ticketTypes = await response.json();
+                const ticketTypeSelect = document.getElementById('ticketType');
+
+                
+                ticketTypeSelect.innerHTML = '<option value="">Valitse lippu tyyppi</option>';
+
+                ticketTypes.forEach(ticketType => {
+                    const option = document.createElement('option');
+                    option.value = ticketType.ticketTypeId;
+                    option.text = ticketType.typeName;
+                    ticketTypeSelect.add(option);
+                });
+            } catch (error) {
+                console.error('Error loading ticket types:', error);
+            }
+        }
+
+        async function createTicket() {
+            const event = document.getElementById('event').value;
+            const ticketType = document.getElementById('ticketType').value;
+
+            const ticketData = {
+                hashcode: event + '-' + ticketType, 
+                ticketUsedDate: null,
+                ticketType: { ticketTypeId: ticketType }, 
+                transaction: null 
+            };
+
+            try {
+                const response = await fetch('http://localhost:8080/api/tickets', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(ticketData)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    alert('Lippu ostettu: ' + JSON.stringify(result));
+                } else {
+                    alert('Virhe lipun ostossa');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Virhe lipun ostossa');
+            }
         }
     </script>
 </body>
-</html></select></html>
+</html>
