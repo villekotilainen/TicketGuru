@@ -75,7 +75,9 @@ public class SecurityConfig {
                                     .requestMatchers(HttpMethod.DELETE, "/api/transactions/*").hasRole("ADMIN")
 
                                     // TicketType: vain admin
-                                    .requestMatchers("/api/tickettypes/*").hasRole("ADMIN")
+                                    .requestMatchers(HttpMethod.POST, "/api/tickettypes/*").hasRole("ADMIN")
+                                    .requestMatchers(HttpMethod.PUT, "/api/tickettypes/*").hasRole("ADMIN")
+                                    .requestMatchers(HttpMethod.DELETE,"/api/tickettypes/*").hasRole("ADMIN")
 
                                     // Venue: vain admin
                                     .requestMatchers("/api/venues/*").hasRole("ADMIN")
