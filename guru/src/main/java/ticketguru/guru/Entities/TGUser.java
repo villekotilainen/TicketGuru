@@ -1,5 +1,7 @@
 package ticketguru.guru.Entities;
 
+import org.springframework.security.core.userdetails.User;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -117,5 +119,10 @@ public class TGUser {
         return "User [userId=" + userId + ", email=" + email + ", firstName=" + firstName + ", lastName=" + lastName
                 + ", password=" + password + ", address=" + address + ", phone=" + phone + ", userrole="
                 + userrole + "]";
+    }
+
+    public User orElseThrow(Object object) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'orElseThrow'");
     } 
 }

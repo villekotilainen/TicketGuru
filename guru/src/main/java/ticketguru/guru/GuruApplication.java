@@ -9,6 +9,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import ticketguru.guru.Entities.Event;
@@ -65,15 +66,15 @@ public class GuruApplication {
             eventRepository.save(event3);
 
             // Create and save user roles
-            Userrole adminRole = new Userrole(null, "ROLE_ADMIN");
-            Userrole userRole = new Userrole(null, "ROLE_USER");
+            Userrole adminRole = new Userrole(null, "ADMIN");
+            Userrole salespersonRole = new Userrole(null, "SALESPERSON");
             userroleRepository.save(adminRole);
-            userroleRepository.save(userRole);
+            userroleRepository.save(salespersonRole);
 
-            // Create and save users with usernames "user" and "admin" and respective roles
-            TGUser tgUser1 = new TGUser(null, "user", "Pekka", "Puupää", 
-                    passwordEncoder.encode("user"), "Kaivokatu 1, Helsinki", "4587624", userRole);
-            TGUser tgUser2 = new TGUser(null, "admin", "Mikko", "Mallikas", 
+            // Create and save users with usernames "salesperson" and "admin" and respective roles
+            TGUser tgUser1 = new TGUser(null, "salesperson@gmail.com", "Pekka", "Puupää", 
+                    passwordEncoder.encode("salesperson"), "Kaivokatu 1, Helsinki", "4587624", salespersonRole);
+            TGUser tgUser2 = new TGUser(null, "admin@gmail.com", "Mikko", "Mallikas", 
                     passwordEncoder.encode("admin"), "Työnjohtajankatu 7, Helsinki", "4587624", adminRole);
             tgUserRepository.save(tgUser1);
             tgUserRepository.save(tgUser2);
