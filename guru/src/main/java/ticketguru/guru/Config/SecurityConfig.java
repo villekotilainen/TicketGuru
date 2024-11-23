@@ -52,7 +52,7 @@ public class SecurityConfig {
                                     .requestMatchers(HttpMethod.POST, "/api/transactions/**").permitAll()
                                     
                                     .requestMatchers(antMatcher("/css/**")).permitAll()
-                                    .requestMatchers(antMatcher("/h2-console")).permitAll()
+                                    .requestMatchers(antMatcher("/h2-console/**")).permitAll()
 
                                     // Lipun tarkistus
                                     .requestMatchers(("/")).hasAnyRole("ADMIN", "SALESPERSON")
