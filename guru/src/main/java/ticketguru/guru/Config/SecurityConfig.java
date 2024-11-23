@@ -40,23 +40,24 @@ public class SecurityConfig {
        public SecurityFilterChain configure(HttpSecurity http) throws Exception {
            http
                     .cors(cors -> cors.configurationSource(customCorsConfig.getCorsConfigurationSource()))
-                    .csrf(csrf -> csrf.disable()) // TODO: disable csrf for now, enable later for production?
+                    .csrf(csrf -> csrf.disable()) // disabled csrf for now, enable later for production?
                     .authorizeHttpRequests(
                             authorize -> authorize
 
+                                    // Pyynnöt voi suorittaa ilman kirjautumatta
                                     .requestMatchers(HttpMethod.GET, "/buy").permitAll()
                                     .requestMatchers(HttpMethod.GET, "/api/events/**").permitAll()
                                     .requestMatchers(HttpMethod.GET, "/api/tickettypes/**").permitAll()
                                     .requestMatchers(HttpMethod.POST, "/api/tickets/**").permitAll()
                                     .requestMatchers(HttpMethod.POST, "/api/transactions/**").permitAll()
-
+                                    
                                     .requestMatchers(antMatcher("/css/**")).permitAll()
                                     .requestMatchers(antMatcher("/h2-console")).permitAll()
 
                                     // Lipun tarkistus
                                     .requestMatchers(("/")).hasAnyRole("ADMIN", "SALESPERSON")
         
-                                    // Event: vain admin voi muokata eventtejä, salesperson voi katsoa
+                                    // Event: vain admin voi muokata eventtejä
                                     .requestMatchers(HttpMethod.POST, "/api/events").hasRole("ADMIN")
                                     .requestMatchers(HttpMethod.PUT, "/api/events/*").hasRole("ADMIN")
                                     .requestMatchers(HttpMethod.DELETE, "/api/events/*").hasRole("ADMIN")
@@ -74,7 +75,7 @@ public class SecurityConfig {
                                     .requestMatchers(HttpMethod.PUT, "/api/transactions/*").hasAnyRole("ADMIN", "SALESPERSON")
                                     .requestMatchers(HttpMethod.DELETE, "/api/transactions/*").hasRole("ADMIN")
 
-                                    // TicketType: vain admin
+                                    // TicketType: vain admin voi muokata
                                     .requestMatchers(HttpMethod.POST, "/api/tickettypes/*").hasRole("ADMIN")
                                     .requestMatchers(HttpMethod.PUT, "/api/tickettypes/*").hasRole("ADMIN")
                                     .requestMatchers(HttpMethod.DELETE,"/api/tickettypes/*").hasRole("ADMIN")
