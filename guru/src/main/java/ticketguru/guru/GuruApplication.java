@@ -9,7 +9,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import ticketguru.guru.Entities.Event;
@@ -26,7 +25,6 @@ import ticketguru.guru.Repositories.TicketTypeRepository;
 import ticketguru.guru.Repositories.TransactionRepository;
 import ticketguru.guru.Repositories.UserroleRepository;
 import ticketguru.guru.Repositories.VenueRepository;
-
 @SpringBootApplication
 public class GuruApplication {
 
@@ -79,24 +77,11 @@ public class GuruApplication {
             tgUserRepository.save(tgUser1);
             tgUserRepository.save(tgUser2);
 
-            // Create and save tickets
-            Ticket ticket1 = new Ticket(null, "b3991bbf55624bef783856baec821d86", LocalDateTime.of(2024, 10, 5, 12, 12));
-            Ticket ticket2 = new Ticket(null, "4c9a8daae6643d5bd51f43c917d90150", LocalDateTime.of(2024, 1, 6, 11, 13));
-            ticketRepository.save(ticket1);
-            ticketRepository.save(ticket2);
-
-            // Create and save transactions
-            Transaction transaction1 = new Transaction(null, LocalDateTime.of(2024, 10, 5, 12, 12), 22.90, true, tgUser1);
-            Transaction transaction2 = new Transaction(null, LocalDateTime.of(2024, 9, 6, 11, 15), 25.20, true, tgUser2);
-            transactionRepository.save(transaction1);
-            transactionRepository.save(transaction2);
-
+            // Create and save ticket types
             TicketType ticketType1 = new TicketType(null, 22.90, "Peruslippu", 100, event1);
             TicketType ticketType2 = new TicketType(null, 25.20, "VIP-lippu", 50, event1);
-
             TicketType ticketType3 = new TicketType(null, 22.90, "Peruslippu", 100, event2);
             TicketType ticketType4 = new TicketType(null, 25.20, "VIP-lippu", 50, event2);
-
             TicketType ticketType5 = new TicketType(null, 22.90, "Peruslippu", 100, event3);
             TicketType ticketType6 = new TicketType(null, 25.20, "VIP-lippu", 50, event3);
 
@@ -106,6 +91,12 @@ public class GuruApplication {
             ticketTypeRepository.save(ticketType4);
             ticketTypeRepository.save(ticketType5);
             ticketTypeRepository.save(ticketType6);
+
+            // Create and save transactions
+            Transaction transaction1 = new Transaction(LocalDateTime.of(2024, 10, 5, 12, 12), 22.90, true, tgUser1);
+            Transaction transaction2 = new Transaction(LocalDateTime.of(2024, 9, 6, 11, 15), 25.20, true, tgUser2);
+            transactionRepository.save(transaction1);
+            transactionRepository.save(transaction2);
 
             log.info("Sample data created successfully.");
         };

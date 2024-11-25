@@ -2,11 +2,14 @@ package ticketguru.guru.Entities;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Size;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -26,12 +29,14 @@ public class Ticket {
     @PastOrPresent(message = "Ticket used date cannot be in the future")
     private LocalDateTime ticketUsedDate;
 
-    @ManyToOne
-    @JoinColumn(name = "transactionId") //many-to-one relationship with Transaction
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "transactionId", nullable = false) //many-to-one relationship with Transaction
+    @JsonIgnoreProperties({"tickets"})
     private Transaction transaction;
 
     @ManyToOne
-    @JoinColumn(name = "ticketTypeId") //many-to-one relationship with TicketType
+    @JoinColumn(name = "ticketTypeId", nullable = false) //many-to-one relationship with TicketType
+    @JsonIgnoreProperties({"tickets"})
     private TicketType ticketType;
 
     private boolean used = false;

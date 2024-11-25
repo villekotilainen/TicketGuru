@@ -2,6 +2,7 @@ package ticketguru.guru.Entities;
 
 import org.springframework.security.core.userdetails.User;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -14,7 +15,10 @@ public class TGUser {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long userId;
+
+    @Column(nullable = false, unique = true)
     private String email;
+    
     private String firstName;
     private String lastName;
     private String password;

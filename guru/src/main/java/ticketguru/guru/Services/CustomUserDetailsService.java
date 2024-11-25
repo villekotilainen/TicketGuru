@@ -18,10 +18,9 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        TGUser tgUser = tgUserRepository.findByEmail(email);
-        if (tgUser == null) {
-            throw new UsernameNotFoundException("User not found");
-        }
+        TGUser tgUser = tgUserRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
         return User.builder()
                 .username(tgUser.getEmail())
                 .password(tgUser.getPassword())

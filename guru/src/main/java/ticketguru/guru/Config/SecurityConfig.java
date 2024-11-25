@@ -50,6 +50,9 @@ public class SecurityConfig {
                                     .requestMatchers(HttpMethod.GET, "/api/tickettypes/**").permitAll()
                                     .requestMatchers(HttpMethod.POST, "/api/tickets/**").permitAll()
                                     .requestMatchers(HttpMethod.POST, "/api/transactions/**").permitAll()
+
+                                    // Allow access to /api/users/me for authenticated users
+                                    .requestMatchers(HttpMethod.GET, "/api/users/me").authenticated()
                                     
                                     .requestMatchers(antMatcher("/css/**")).permitAll()
                                     .requestMatchers(antMatcher("/h2-console/**")).permitAll()
@@ -82,6 +85,9 @@ public class SecurityConfig {
 
                                     // Venue: vain admin
                                     .requestMatchers("/api/venues/*").hasRole("ADMIN")
+
+                                    // Protect TGUser endpoints for admin role
+                                    .requestMatchers("/api/users/*").hasRole("ADMIN")
 
                                     .anyRequest().authenticated()
                     )  

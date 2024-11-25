@@ -6,71 +6,70 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import ticketguru.guru.Entities.Transaction;
-import ticketguru.guru.Repositories.TransactionRepository;
-
+import ticketguru.guru.Services.TransactionService;
+import ticketguru.guru.dto.TransactionDTO;
+import ticketguru.guru.dto.TransactionRequest;
 
 @RestController
 @RequestMapping("/api/transactions")
 public class TransactionRestController {
 
     @Autowired
-    private TransactionRepository transactionRepository;
+    private TransactionService transactionService;
 
-    // Hae kaikki transaktiot
+    // GET: Fetch all transactions
     @GetMapping
-    public List<Transaction> getAllTransactions() {
-        return transactionRepository.findAll();
+    public List<TransactionDTO> getAllTransactions() {
+        return transactionService.getAllTransactions();
     }
 
-    // GET: Hae yksittäinen transaktio ID:n perusteella
+    // GET: Fetch a single transaction by ID
     @GetMapping("/{id}")
-    public ResponseEntity<Transaction> getTransactionById(@PathVariable Long id) {
-        Optional<Transaction> transaction = transactionRepository.findById(id);
-        return transaction.map(ResponseEntity::ok)
-                          .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    public ResponseEntity<TransactionDTO> getTransactionById(@PathVariable Long id) {
+        return transactionService.getTransactionById(id)
+                .map(transactionService::convertToDTO)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    // POST: Lisää uusi transaktio
+    // POST: Create a new transaction
     @PostMapping
-    public ResponseEntity<Transaction> createTransaction(@RequestBody Transaction newTransaction) {
-        Transaction savedTransaction = transactionRepository.save(newTransaction);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedTransaction);
+    public ResponseEntity<?> createTransaction(@RequestBody TransactionRequest request) {
+        try {
+            Transaction transaction = transactionService.createTransactionWithTickets(request.getTicketTypeIds(), request.getUserId());
+            return ResponseEntity.status(HttpStatus.CREATED).body(transactionService.convertToDTO(transaction));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while creating the transaction.");
+        }
     }
 
-    // PUT: Päivitä olemassa oleva transaktio
+    // PUT: Update an existing transaction
     @PutMapping("/{id}")
-    public ResponseEntity<Transaction> updateTransaction(@PathVariable Long id, @RequestBody Transaction transactionDetails) {
-        Optional<Transaction> optionalTransaction = transactionRepository.findById(id);
-        
+    public ResponseEntity<TransactionDTO> updateTransaction(@PathVariable Long id, @RequestBody TransactionDTO transactionDetails) {
+        Optional<Transaction> optionalTransaction = transactionService.getTransactionById(id);
+
         if (optionalTransaction.isPresent()) {
             Transaction existingTransaction = optionalTransaction.get();
             existingTransaction.setTransactionDate(transactionDetails.getTransactionDate());
             existingTransaction.setTotalSum(transactionDetails.getTotalSum());
             existingTransaction.setSucceeded(transactionDetails.getSucceeded());
-            existingTransaction.setUser(transactionDetails.getUser());
-            
-            Transaction updatedTransaction = transactionRepository.save(existingTransaction);
-            return ResponseEntity.ok(updatedTransaction);
+
+            Transaction updatedTransaction = transactionService.saveTransaction(existingTransaction);
+            return ResponseEntity.ok(transactionService.convertToDTO(updatedTransaction));
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 
-    // DELETE: Poista transaktio ID:n perusteella
+    // DELETE: Delete a transaction by ID
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTransaction(@PathVariable Long id) {
-        if (transactionRepository.existsById(id)) {
-            transactionRepository.deleteById(id);
+        if (transactionService.deleteTransactionById(id)) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();

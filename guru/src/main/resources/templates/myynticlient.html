@@ -16,7 +16,12 @@
             left: 50%;
             transform: translate(-50%, -50%);
         }
+        img {
+            display: block;
+            margin: auto;
+        }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
 </head>
 <body>
     <h1>Osta Lippu</h1>
@@ -35,16 +40,32 @@
         </div>
     </form>
 
-    <iframe src="https://giphy.com/embed/Jmlv4CUO1qWlGWJf3J" width="480" height="480" style="" frameBorder="0" class="giphy-embed bottom-left" allowFullScreen></iframe>
+    <h2>Myydyt Liput</h2>
+    <div id="soldTicketsSection" style="display: none;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Tapahtuma</th>
+                    <th>Lippu</th>
+                    <th>Hinta</th>
+                    <th>Koodi</th>
+                    <th>QR-koodi</th>
+                    <th>Toiminnot</th>
+                </tr>
+            </thead>
+            <tbody id="soldTicketsContainer"></tbody>
+        </table>
+        <button onclick="printTickets()">Tulosta Kaikki Liput</button>
+    </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', (event) => {
+        document.addEventListener('DOMContentLoaded', () => {
             loadEvents();
         });
 
         async function loadEvents() {
             try {
-                const response = await fetch('https://ticket-guru-visionaarit-ticketguru2.2.rahtiapp.fi/api/events');
+                const response = await fetch('/api/events');
                 const events = await response.json();
                 const eventSelect = document.getElementById('event');
 
@@ -64,11 +85,10 @@
             if (!eventId) return;
 
             try {
-                const response = await fetch(`https://ticket-guru-visionaarit-ticketguru2.2.rahtiapp.fi/api/tickettypes/event/${eventId}`);
+                const response = await fetch(`/api/tickettypes/event/${eventId}`);
                 const ticketTypes = await response.json();
                 const ticketTypesContainer = document.getElementById('ticketTypesContainer');
 
-                
                 ticketTypesContainer.innerHTML = '';
 
                 ticketTypes.forEach(ticketType => {
@@ -88,45 +108,141 @@
         }
 
         async function createTicket() {
-            const event = document.getElementById('event').value;
-            const ticketTypesContainer = document.getElementById('ticketTypesContainer');
-            const inputs = ticketTypesContainer.getElementsByTagName('input');
+    try {
+        // Step 1: Fetch the current logged-in user
+        const userResponse = await fetch('/api/users/me');
+        if (!userResponse.ok) throw new Error('Failed to fetch logged-in user info');
+        const user = await userResponse.json();
+        const userId = user.userId;
 
-            const tickets = [];
-            for (let input of inputs) {
-                const ticketTypeId = input.id.split('_')[1];
-                const quantity = parseInt(input.value);
-                if (quantity > 0) {
-                    for (let i = 0; i < quantity; i++) {
-                        tickets.push({
-                            hashcode: event + '-' + ticketTypeId, 
-                            ticketUsedDate: null,
-                            ticketType: { ticketTypeId: ticketTypeId }, 
-                            transaction: null 
-                        });
-                    }
+        // Step 2: Create a transaction for the user
+        const transactionId = await createTransaction(userId);
+
+        // Step 3: Gather selected tickets and send to backend
+        const ticketTypesContainer = document.getElementById('ticketTypesContainer');
+        const inputs = ticketTypesContainer.getElementsByTagName('input');
+
+        const tickets = [];
+        for (let input of inputs) {
+            const ticketTypeId = input.id.split('_')[1]; // Extract ticketTypeId from input id
+            const quantity = parseInt(input.value, 10); // Parse input value as an integer
+            if (quantity > 0) {
+                for (let i = 0; i < quantity; i++) {
+                    tickets.push({
+                        ticketType: { ticketTypeId: parseInt(ticketTypeId, 10) }, // Attach valid TicketType ID
+                        transaction: { transactionId: transactionId }, // Link to the created transaction
+                    });
                 }
             }
+        }
 
-            try {
-                const response = await fetch('https://ticket-guru-visionaarit-ticketguru2.2.rahtiapp.fi/api/tickets/transaction', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(tickets)
+        if (tickets.length === 0) {
+            alert('Please select at least one ticket.');
+            return;
+        }
+
+        const response = await fetch(`/api/tickets/transaction?transactionId=${transactionId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(tickets),
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            alert('Tickets successfully purchased!');
+            displaySoldTickets(result);
+        } else {
+            const error = await response.text();
+            console.error('Error:', error);
+            alert('Failed to create tickets: ' + error);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to create tickets.');
+    }
+}
+
+
+
+async function createTransaction(userId) {
+    try {
+        const ticketTypesContainer = document.getElementById('ticketTypesContainer');
+        const inputs = ticketTypesContainer.getElementsByTagName('input');
+
+        const ticketTypeIds = [];
+        for (let input of inputs) {
+            const ticketTypeId = input.id.split('_')[1];
+            const quantity = parseInt(input.value, 10);
+            if (quantity > 0) {
+                for (let i = 0; i < quantity; i++) {
+                    ticketTypeIds.push(parseInt(ticketTypeId));
+                }
+            }
+        }
+
+        if (ticketTypeIds.length === 0) {
+            alert('Please select at least one ticket type.');
+            return;
+        }
+
+        const response = await fetch('/api/transactions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                userId: userId,
+                ticketTypeIds: ticketTypeIds,
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to create transaction');
+        }
+
+        const transaction = await response.json();
+        return transaction.transactionId;
+    } catch (error) {
+        console.error('Error creating transaction:', error);
+        throw error;
+    }
+}
+
+
+
+        function displaySoldTickets(tickets) {
+            const soldTicketsContainer = document.getElementById('soldTicketsContainer');
+            soldTicketsContainer.innerHTML = '';
+
+            tickets.forEach(ticket => {
+                const row = document.createElement('tr');
+
+                const qr = new QRious({
+                    value: ticket.hashcode,
+                    size: 100
                 });
 
-                if (response.ok) {
-                    const result = await response.json();
-                    alert('Lippu ostettu: ' + JSON.stringify(result));
-                } else {
-                    alert('Virhe lipun ostossa');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Virhe lipun ostossa');
-            }
+                row.innerHTML = `
+                    <td>${ticket.ticketType?.event?.eventName || 'Tuntematon'}</td>
+                    <td>${ticket.ticketType?.typeName || 'Tuntematon'}</td>
+                    <td>${ticket.ticketType?.ticketPrice || '0'} €</td>
+                    <td>${ticket.hashcode}</td>
+                    <td><img src="${qr.toDataURL()}" alt="QR Code"></td>
+                    <td><button onclick="printSingleTicket('${ticket.hashcode}')">Tulosta</button></td>
+                `;
+
+                soldTicketsContainer.appendChild(row);
+            });
+
+            document.getElementById('soldTicketsSection').style.display = 'block';
+        }
+
+        function printSingleTicket(hashcode) {
+            const newWindow = window.open('', '_blank');
+            newWindow.document.write(`<h1>Lippu</h1><p>Koodi: ${hashcode}</p>`);
+            newWindow.print();
+        }
+
+        function printTickets() {
+            window.print();
         }
     </script>
 </body>

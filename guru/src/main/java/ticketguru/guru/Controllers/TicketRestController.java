@@ -16,11 +16,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
+import ticketguru.guru.Entities.TGUser;
 import ticketguru.guru.Entities.Ticket;
+import ticketguru.guru.Entities.Transaction;
+import ticketguru.guru.Repositories.TGUserRepository;
 import ticketguru.guru.Repositories.TicketRepository;
+import ticketguru.guru.Repositories.TransactionRepository;
 
 @RestController
 @RequestMapping("/api/tickets") // Base path for tickets-related requests
@@ -29,6 +34,12 @@ public class TicketRestController {
 
     @Autowired
     private TicketRepository ticketRepository;
+
+    @Autowired
+    private TransactionRepository transactionRepository;
+
+    @Autowired
+    private TGUserRepository tgUserRepository;
 
     // GET: Hae kaikki liput
     @GetMapping
@@ -47,6 +58,9 @@ public class TicketRestController {
     // POST: Lisää uusi lippu
     @PostMapping
     public ResponseEntity<Ticket> createTicket(@Valid @RequestBody Ticket newTicket) {
+        if (newTicket.getTransaction() == null || newTicket.getTicketType() == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
         Ticket savedTicket = ticketRepository.save(newTicket);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedTicket);
     }
@@ -94,11 +108,70 @@ public class TicketRestController {
         }
     }
 
-    @CrossOrigin(origins = "*")
-    @PostMapping("/transaction")
-    public ResponseEntity<List<Ticket>> createTickets(@Valid @RequestBody List<Ticket> newTickets) {
-        List<Ticket> savedTickets = ticketRepository.saveAll(newTickets);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedTickets);
+  // POST: Create Tickets for a Transaction
+@CrossOrigin(origins = "*")
+@PostMapping("/transaction")
+public ResponseEntity<?> createTicketsWithTransaction(
+        @RequestBody List<Ticket> tickets,
+        @RequestParam Long transactionId) {
+
+    // Validate if the transaction exists
+    Optional<Transaction> transactionOptional = transactionRepository.findById(transactionId);
+    if (transactionOptional.isEmpty()) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                             .body("Transaction ID is invalid or does not exist.");
+    }
+
+    Transaction transaction = transactionOptional.get();
+
+    // Validate tickets list
+    if (tickets == null || tickets.isEmpty()) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                             .body("Ticket list cannot be empty.");
+    }
+
+    // Associate tickets with the transaction
+    tickets.forEach(ticket -> {
+        if (ticket.getTicketType() == null || ticket.getTicketType().getTicketTypeId() == null) {
+            throw new IllegalArgumentException("Each ticket must have a valid TicketType.");
+        }
+        ticket.setTransaction(transaction);
+    });
+
+    // Save tickets
+    List<Ticket> savedTickets = ticketRepository.saveAll(tickets);
+
+    // Return the saved tickets
+    return ResponseEntity.status(HttpStatus.CREATED).body(savedTickets);
 }
-    
+
+    // POST: Create Tickets with User and Transaction
+    @CrossOrigin(origins = "*")
+    @PostMapping("/create-with-user")
+    public ResponseEntity<?> createTicketsWithUser(
+            @RequestBody List<Ticket> tickets,
+            @RequestParam Long userId) {
+        Optional<TGUser> userOptional = tgUserRepository.findById(userId);
+        if (userOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User ID is invalid.");
+        }
+
+        TGUser user = userOptional.get();
+
+        // Create a new transaction for the tickets
+        Transaction transaction = new Transaction();
+        transaction.setTransactionDate(LocalDateTime.now());
+        transaction.setUser(user);
+        transaction.setTotalSum(tickets.stream()
+                .mapToDouble(ticket -> ticket.getTicketType().getTicketPrice())
+                .sum());
+        transaction.setSucceeded(true);
+        transactionRepository.save(transaction);
+
+        // Associate tickets with the transaction and save
+        tickets.forEach(ticket -> ticket.setTransaction(transaction));
+        List<Ticket> savedTickets = ticketRepository.saveAll(tickets);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedTickets);
+    }
 }

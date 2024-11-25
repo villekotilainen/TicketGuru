@@ -1,7 +1,12 @@
 package ticketguru.guru.Entities;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -17,27 +22,38 @@ public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long transactionId;
-    private LocalDateTime transactionDate;
+
+    private LocalDateTime transactionDate = LocalDateTime.now();
     private Double totalSum;
-    private Boolean succeeded;
+    private Boolean succeeded = true;
 
     @ManyToOne
-    @JoinColumn(name = "userId") //many-to-one relationship with User
+    @JoinColumn(name = "userId", nullable = false) //many-to-one relationship with User
+    @JsonIgnoreProperties({"transaction"})
     private TGUser user;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "transaction") //one-to-many realationship with Ticket
-    private List<Ticket> tickets;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "transaction", orphanRemoval = true) //one-to-many realationship with Ticket
+    @JsonIgnoreProperties({"transaction"})
+    private List<Ticket> tickets = new ArrayList<>();
 
-    public Transaction(Long transactionId, LocalDateTime transactionDate, Double totalSum, Boolean succeeded, TGUser user) {
-        this.transactionId = transactionId;
+    public Transaction() {
+    }
+
+    public Transaction(Double totalSum, TGUser user) {
+        this.transactionDate = LocalDateTime.now();
+        this.totalSum = totalSum;
+        this.succeeded = true;
+        this.user = user;
+    }
+
+
+    public Transaction(LocalDateTime transactionDate, Double totalSum, Boolean succeeded, TGUser user) {
         this.transactionDate = transactionDate;
         this.totalSum = totalSum;
         this.succeeded = succeeded;
         this.user = user;
     }
 
-    public Transaction() {
-    }
 
     public Long getTransactionId() {
         return transactionId;
