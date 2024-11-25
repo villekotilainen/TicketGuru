@@ -5,6 +5,7 @@ import org.springframework.stereotype.Repository;
 
 import ticketguru.guru.Entities.Event;
 import ticketguru.guru.Entities.Ticket;
+import ticketguru.guru.Entities.TicketType;
 import ticketguru.guru.Entities.Transaction;
 
 import java.util.List;
@@ -18,5 +19,5 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
     Ticket findByHashcode(String hashcode);
 
-    boolean existsByTicketType(String ticketType);
+    boolean existsByTicketType(TicketType ticketType);
 }

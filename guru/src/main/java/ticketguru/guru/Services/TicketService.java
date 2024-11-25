@@ -3,15 +3,22 @@ package ticketguru.guru.Services;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+import ticketguru.guru.Entities.TicketType;
 import ticketguru.guru.Repositories.TicketRepository;
+import ticketguru.guru.Repositories.TicketTypeRepository; 
 import ticketguru.guru.dto.SaleRequest;
 import ticketguru.guru.dto.SaleResponse;
 
+@Service
 public class TicketService {
 
     @Autowired
     private TicketRepository ticketRepository;
+
+    @Autowired
+    private TicketTypeRepository ticketTypeRepository; 
 
     // Käsittele lipunmyynti
     public SaleResponse processSale(SaleRequest saleRequest) throws Exception {
@@ -34,8 +41,11 @@ public class TicketService {
     }
 
     // Tarkista lipputyyppien saatavuus
-    private boolean checkAvailability(List<String> ticketTypes) {
-        for (String ticketType : ticketTypes) {
+    private boolean checkAvailability(List<String> ticketTypeNames) { 
+        for (String ticketTypeName : ticketTypeNames) { 
+            TicketType ticketType = ticketTypeRepository.findByTypeName(ticketTypeName) // Use correct method from repository
+                .orElseThrow(() -> new IllegalArgumentException("Virheellinen lipputyyppi: " + ticketTypeName));
+            
             if (!ticketRepository.existsByTicketType(ticketType)) {
                 return false; // Jos jokin lipputyyppi ei ole saatavilla
             }
@@ -47,7 +57,7 @@ public class TicketService {
     private double calculateTotalAmount(List<String> ticketTypes) {
         double totalAmount = 0;
         for (String ticketType : ticketTypes) {
-            totalAmount += getTicketPrice(ticketType); // Hinta hakeminen jollain tavalla
+            totalAmount += getTicketPrice(ticketType); // Hae hinta lipputyypin perusteella
         }
         return totalAmount;
     }
@@ -62,7 +72,7 @@ public class TicketService {
             case "Eläkeläinen":
                 return 10.00;
             default:
-                return 0;
+                throw new IllegalArgumentException("Tuntematon lipputyyppi: " + ticketType);
         }
     }
 }
