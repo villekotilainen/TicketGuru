@@ -3,6 +3,7 @@ package ticketguru.guru.Controllers;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,18 +20,24 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import ticketguru.guru.Entities.TGUser;
 import ticketguru.guru.Entities.Ticket;
+import ticketguru.guru.Entities.TicketType;
 import ticketguru.guru.Entities.Transaction;
 import ticketguru.guru.Repositories.TGUserRepository;
 import ticketguru.guru.Repositories.TicketRepository;
+import ticketguru.guru.Repositories.TicketTypeRepository;
 import ticketguru.guru.Repositories.TransactionRepository;
 
 @RestController
 @RequestMapping("/api/tickets") // Base path for tickets-related requests
 @Validated
 public class TicketRestController {
+
+    @Autowired
+    private TicketTypeRepository ticketTypeRepository;
 
     @Autowired
     private TicketRepository ticketRepository;
@@ -110,41 +117,60 @@ public class TicketRestController {
 
   // POST: Create Tickets for a Transaction
 @CrossOrigin(origins = "*")
+@Transactional
 @PostMapping("/transaction")
 public ResponseEntity<?> createTicketsWithTransaction(
         @RequestBody List<Ticket> tickets,
         @RequestParam Long transactionId) {
 
-    // Validate if the transaction exists
-    Optional<Transaction> transactionOptional = transactionRepository.findById(transactionId);
-    if (transactionOptional.isEmpty()) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                             .body("Transaction ID is invalid or does not exist.");
-    }
-
-    Transaction transaction = transactionOptional.get();
-
-    // Validate tickets list
-    if (tickets == null || tickets.isEmpty()) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                             .body("Ticket list cannot be empty.");
-    }
-
-    // Associate tickets with the transaction
-    tickets.forEach(ticket -> {
-        if (ticket.getTicketType() == null || ticket.getTicketType().getTicketTypeId() == null) {
-            throw new IllegalArgumentException("Each ticket must have a valid TicketType.");
+    try {
+        // Validate if the transaction exists
+        Optional<Transaction> transactionOptional = transactionRepository.findById(transactionId);
+        if (transactionOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                 .body("Transaction ID is invalid or does not exist.");
         }
-        ticket.setTransaction(transaction);
-    });
 
-    // Save tickets
-    List<Ticket> savedTickets = ticketRepository.saveAll(tickets);
+        Transaction transaction = transactionOptional.get();
 
-    // Return the saved tickets
-    return ResponseEntity.status(HttpStatus.CREATED).body(savedTickets);
+        // Validate tickets list
+        if (tickets == null || tickets.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                 .body("Ticket list cannot be empty.");
+        }
+
+        // Associate tickets with the transaction and set required fields
+        for (Ticket ticket : tickets) {
+            if (ticket.getTicketType() == null || ticket.getTicketType().getTicketTypeId() == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                     .body("Each ticket must have a valid TicketType.");
+            }
+
+            // Check if the ticket type exists
+            TicketType ticketType = ticketTypeRepository.findById(ticket.getTicketType().getTicketTypeId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid TicketType ID: " + ticket.getTicketType().getTicketTypeId()));
+
+            // Set valid TicketType and Transaction
+            ticket.setTicketType(ticketType);
+            ticket.setTransaction(transaction);
+
+            // Generate a unique hashcode for the ticket if not already set
+            if (ticket.getHashcode() == null || ticket.getHashcode().isEmpty()) {
+                ticket.setHashcode(UUID.randomUUID().toString());
+            }
+        }
+
+        // Save tickets
+        List<Ticket> savedTickets = ticketRepository.saveAll(tickets);
+
+        // Return the saved tickets
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedTickets);
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                             .body("Error occurred while creating tickets: " + e.getMessage());
+    }
 }
-
     // POST: Create Tickets with User and Transaction
     @CrossOrigin(origins = "*")
     @PostMapping("/create-with-user")

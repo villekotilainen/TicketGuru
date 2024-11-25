@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import ticketguru.guru.Entities.TicketType;
 import ticketguru.guru.Repositories.TicketRepository;
@@ -21,6 +22,7 @@ public class TicketService {
     private TicketTypeRepository ticketTypeRepository; 
 
     // Käsittele lipunmyynti
+    @Transactional
     public SaleResponse processSale(SaleRequest saleRequest) throws Exception {
         // Tarkista saatavuus
         boolean isAvailable = checkAvailability(saleRequest.getTicketTypes());
@@ -43,10 +45,11 @@ public class TicketService {
     // Tarkista lipputyyppien saatavuus
     private boolean checkAvailability(List<String> ticketTypeNames) { 
         for (String ticketTypeName : ticketTypeNames) { 
-            TicketType ticketType = ticketTypeRepository.findByTypeName(ticketTypeName) // Use correct method from repository
+            TicketType ticketType = ticketTypeRepository.findByTypeName(ticketTypeName) 
                 .orElseThrow(() -> new IllegalArgumentException("Virheellinen lipputyyppi: " + ticketTypeName));
             
-            if (!ticketRepository.existsByTicketType(ticketType)) {
+            // Check if there are available tickets of this type (assuming totalCount is the availability)
+            if (ticketType.getTotalCount() <= 0) {
                 return false; // Jos jokin lipputyyppi ei ole saatavilla
             }
         }
@@ -64,15 +67,9 @@ public class TicketService {
 
     // Hae lipun hinta lipputyypin perusteella
     private double getTicketPrice(String ticketType) {
-        switch (ticketType) {
-            case "Aikuinen":
-                return 15.00;
-            case "Lapsi":
-                return 7.50;
-            case "Eläkeläinen":
-                return 10.00;
-            default:
-                throw new IllegalArgumentException("Tuntematon lipputyyppi: " + ticketType);
-        }
+        TicketType type = ticketTypeRepository.findByTypeName(ticketType)
+                .orElseThrow(() -> new IllegalArgumentException("Tuntematon lipputyyppi: " + ticketType));
+        return type.getTicketPrice();
     }
 }
+

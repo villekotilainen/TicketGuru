@@ -1,61 +1,51 @@
 <!DOCTYPE html>
 <html lang="fi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Myynti Client</title>
-    <style>
-        .bottom-left {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-        }
-        .center-logo {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-        img {
-            display: block;
-            margin: auto;
-        }
-    </style>
+    <!-- External CSS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
 </head>
+
 <body>
-    <h1>Osta Lippu</h1>
-    <form id="ticketForm">
-        <label for="event">Valitse tapahtuma:</label>
-        <select id="event" name="event" onchange="loadTicketTypes()">
-            <option value="">Valitse tapahtuma</option>
-        </select>
-        <br><br>
+    <div class="container">
+        <h1>Myy Lippu</h1>
+        <form id="ticketForm">
+            <label for="event">Valitse tapahtuma:</label>
+            <select id="event" name="event" onchange="loadTicketTypes()">
+                <option value="">Valitse tapahtuma</option>
+            </select>
 
-        <div id="ticketTypesSection" style="display: none;">
-            <h2>Valitse lippu tyyppi ja määrä</h2>
-            <div id="ticketTypesContainer"></div>
-            <br><br>
-            <button type="button" onclick="createTicket()">Osta Lippu</button>
+            <div id="ticketTypesSection" style="display: none;">
+                <h2>Valitse lippu tyyppi ja määrä</h2>
+                <div id="ticketTypesContainer"></div>
+                <button type="button" onclick="createTicket()">Osta Lippu</button>
+            </div>
+        </form>
+
+        <h2>Myydyt Liput</h2>
+        <div id="soldTicketsSection" style="display: none;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tapahtuma</th>
+                        <th>Lippu</th>
+                        <th>Hinta</th>
+                        <th>Koodi</th>
+                        <th>QR-koodi</th>
+                        <th>Toiminnot</th>
+                    </tr>
+                </thead>
+                <tbody id="soldTicketsContainer"></tbody>
+            </table>
+            <button onclick="printTickets()">Tulosta Kaikki Liput</button>
         </div>
-    </form>
-
-    <h2>Myydyt Liput</h2>
-    <div id="soldTicketsSection" style="display: none;">
-        <table>
-            <thead>
-                <tr>
-                    <th>Tapahtuma</th>
-                    <th>Lippu</th>
-                    <th>Hinta</th>
-                    <th>Koodi</th>
-                    <th>QR-koodi</th>
-                    <th>Toiminnot</th>
-                </tr>
-            </thead>
-            <tbody id="soldTicketsContainer"></tbody>
-        </table>
-        <button onclick="printTickets()">Tulosta Kaikki Liput</button>
     </div>
 
     <script>
@@ -108,105 +98,101 @@
         }
 
         async function createTicket() {
-    try {
-        // Step 1: Fetch the current logged-in user
-        const userResponse = await fetch('/api/users/me');
-        if (!userResponse.ok) throw new Error('Failed to fetch logged-in user info');
-        const user = await userResponse.json();
-        const userId = user.userId;
+            try {
+                // Step 1: Fetch the current logged-in user
+                const userResponse = await fetch('/api/users/me');
+                if (!userResponse.ok) throw new Error('Failed to fetch logged-in user info');
+                const user = await userResponse.json();
+                const userId = user.userId;
 
-        // Step 2: Create a transaction for the user
-        const transactionId = await createTransaction(userId);
+                // Step 2: Create a transaction for the user
+                const transactionId = await createTransaction(userId);
 
-        // Step 3: Gather selected tickets and send to backend
-        const ticketTypesContainer = document.getElementById('ticketTypesContainer');
-        const inputs = ticketTypesContainer.getElementsByTagName('input');
+                // Step 3: Gather selected tickets and send to backend
+                const ticketTypesContainer = document.getElementById('ticketTypesContainer');
+                const inputs = ticketTypesContainer.getElementsByTagName('input');
 
-        const tickets = [];
-        for (let input of inputs) {
-            const ticketTypeId = input.id.split('_')[1]; // Extract ticketTypeId from input id
-            const quantity = parseInt(input.value, 10); // Parse input value as an integer
-            if (quantity > 0) {
-                for (let i = 0; i < quantity; i++) {
-                    tickets.push({
-                        ticketType: { ticketTypeId: parseInt(ticketTypeId, 10) }, // Attach valid TicketType ID
-                        transaction: { transactionId: transactionId }, // Link to the created transaction
-                    });
+                const tickets = [];
+                for (let input of inputs) {
+                    const ticketTypeId = input.id.split('_')[1]; // Extract ticketTypeId from input id
+                    const quantity = parseInt(input.value, 10); // Parse input value as an integer
+                    if (quantity > 0) {
+                        for (let i = 0; i < quantity; i++) {
+                            tickets.push({
+                                ticketType: { ticketTypeId: parseInt(ticketTypeId, 10) }, // Attach valid TicketType ID
+                                transaction: { transactionId: transactionId }, // Link to the created transaction
+                            });
+                        }
+                    }
                 }
+
+                if (tickets.length === 0) {
+                    alert('Please select at least one ticket.');
+                    return;
+                }
+
+                const response = await fetch(`/api/tickets/transaction?transactionId=${transactionId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(tickets),
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    alert('Tickets successfully purchased!');
+                    displaySoldTickets(result);
+                } else {
+                    const error = await response.json();
+                    console.error('Error:', error);
+                    alert('Failed to create tickets: ' + (error.message || 'Unknown error occurred.'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to create tickets.');
             }
         }
 
-        if (tickets.length === 0) {
-            alert('Please select at least one ticket.');
-            return;
-        }
+        async function createTransaction(userId) {
+            try {
+                const ticketTypesContainer = document.getElementById('ticketTypesContainer');
+                const inputs = ticketTypesContainer.getElementsByTagName('input');
 
-        const response = await fetch(`/api/tickets/transaction?transactionId=${transactionId}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(tickets),
-        });
-
-        if (response.ok) {
-            const result = await response.json();
-            alert('Tickets successfully purchased!');
-            displaySoldTickets(result);
-        } else {
-            const error = await response.text();
-            console.error('Error:', error);
-            alert('Failed to create tickets: ' + error);
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        alert('Failed to create tickets.');
-    }
-}
-
-
-
-async function createTransaction(userId) {
-    try {
-        const ticketTypesContainer = document.getElementById('ticketTypesContainer');
-        const inputs = ticketTypesContainer.getElementsByTagName('input');
-
-        const ticketTypeIds = [];
-        for (let input of inputs) {
-            const ticketTypeId = input.id.split('_')[1];
-            const quantity = parseInt(input.value, 10);
-            if (quantity > 0) {
-                for (let i = 0; i < quantity; i++) {
-                    ticketTypeIds.push(parseInt(ticketTypeId));
+                const ticketTypeIds = [];
+                for (let input of inputs) {
+                    const ticketTypeId = input.id.split('_')[1];
+                    const quantity = parseInt(input.value, 10);
+                    if (quantity > 0) {
+                        for (let i = 0; i < quantity; i++) {
+                            ticketTypeIds.push(parseInt(ticketTypeId));
+                        }
+                    }
                 }
+
+                if (ticketTypeIds.length === 0) {
+                    alert('Please select at least one ticket type.');
+                    return;
+                }
+
+                const response = await fetch('/api/transactions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: userId,
+                        ticketTypeIds: ticketTypeIds,
+                    }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to create transaction');
+                }
+
+                const transaction = await response.json();
+                return transaction.transactionId;
+            } catch (error) {
+                console.error('Error creating transaction:', error);
+                throw error;
             }
         }
-
-        if (ticketTypeIds.length === 0) {
-            alert('Please select at least one ticket type.');
-            return;
-        }
-
-        const response = await fetch('/api/transactions', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                userId: userId,
-                ticketTypeIds: ticketTypeIds,
-            }),
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to create transaction');
-        }
-
-        const transaction = await response.json();
-        return transaction.transactionId;
-    } catch (error) {
-        console.error('Error creating transaction:', error);
-        throw error;
-    }
-}
-
-
 
         function displaySoldTickets(tickets) {
             const soldTicketsContainer = document.getElementById('soldTicketsContainer');
@@ -246,4 +232,6 @@ async function createTransaction(userId) {
         }
     </script>
 </body>
+
 </html>
+

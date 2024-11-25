@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Size;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -29,25 +30,27 @@ public class Ticket {
     @PastOrPresent(message = "Ticket used date cannot be in the future")
     private LocalDateTime ticketUsedDate;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "transactionId", nullable = false) //many-to-one relationship with Transaction
-    @JsonIgnoreProperties({"tickets"})
+    @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
+    @JoinColumn(name = "transactionId", nullable = false)
+    @JsonIgnoreProperties({ "tickets" })
     private Transaction transaction;
 
-    @ManyToOne
-    @JoinColumn(name = "ticketTypeId", nullable = false) //many-to-one relationship with TicketType
-    @JsonIgnoreProperties({"tickets"})
+    @ManyToOne(cascade = CascadeType.MERGE)
+    @JoinColumn(name = "ticketTypeId", nullable = false)
+    @JsonIgnoreProperties({ "tickets" })
     private TicketType ticketType;
 
     private boolean used = false;
 
-    public Ticket(Long ticketId, String hashcode, LocalDateTime ticketUsedDate, TicketType ticketType, Transaction transaction) {
+    public Ticket(Long ticketId, String hashcode, LocalDateTime ticketUsedDate, TicketType ticketType,
+            Transaction transaction) {
         this.ticketId = ticketId;
         this.hashcode = hashcode;
         this.ticketUsedDate = ticketUsedDate;
         this.ticketType = ticketType;
         this.transaction = transaction;
     }
+
     public Ticket(Long ticketId, String hashcode, LocalDateTime ticketUsedDate) {
         this.ticketId = ticketId;
         this.hashcode = hashcode;
@@ -88,14 +91,14 @@ public class Ticket {
     public void setTransaction(Transaction transaction) {
         this.transaction = transaction;
     }
-    
+
     public TicketType getTicketType() {
         return ticketType;
     }
 
     public void setTicketType(TicketType ticketType) {
         this.ticketType = ticketType;
-    }  
+    }
 
     public boolean isUsed() {
         return used;

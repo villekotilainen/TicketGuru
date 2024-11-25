@@ -11,7 +11,7 @@ public class HomeController {
         return "index"; 
     }
 
-    @GetMapping("/buy")
+    @GetMapping("/sell")
     public String myynticlient() {
         return "myynticlient"; 
     }
