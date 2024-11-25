@@ -17,4 +17,6 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     List<Ticket> findByTransaction(Transaction transaction);
 
     Ticket findByHashcode(String hashcode);
+
+    boolean existsByTicketType(String ticketType);
 }
