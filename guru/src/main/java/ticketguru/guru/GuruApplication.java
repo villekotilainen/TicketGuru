@@ -78,10 +78,13 @@ public class GuruApplication {
             tgUserRepository.save(tgUser2);
 
             // Create and save ticket types
+            TicketType ticketType7 = new TicketType(null, 15.00, "Lastenlippu", 100, event1);
             TicketType ticketType1 = new TicketType(null, 22.90, "Peruslippu", 100, event1);
             TicketType ticketType2 = new TicketType(null, 25.20, "VIP-lippu", 50, event1);
+            TicketType ticketType8 = new TicketType(null, 15.00, "Lastenlippu", 100, event2);
             TicketType ticketType3 = new TicketType(null, 22.90, "Peruslippu", 100, event2);
             TicketType ticketType4 = new TicketType(null, 25.20, "VIP-lippu", 50, event2);
+            TicketType ticketType9 = new TicketType(null, 15.00, "Lastenlippu", 100, event3);
             TicketType ticketType5 = new TicketType(null, 22.90, "Peruslippu", 100, event3);
             TicketType ticketType6 = new TicketType(null, 25.20, "VIP-lippu", 50, event3);
 
@@ -91,6 +94,9 @@ public class GuruApplication {
             ticketTypeRepository.save(ticketType4);
             ticketTypeRepository.save(ticketType5);
             ticketTypeRepository.save(ticketType6);
+            ticketTypeRepository.save(ticketType7);
+            ticketTypeRepository.save(ticketType8);
+            ticketTypeRepository.save(ticketType9);
 
             // Create and save transactions
             Transaction transaction1 = new Transaction(LocalDateTime.of(2024, 10, 5, 12, 12), 22.90, true, tgUser1);
