@@ -25,6 +25,11 @@
             <div id="ticketTypesSection" style="display: none;">
                 <h2>Valitse lippu tyyppi ja määrä</h2>
                 <div id="ticketTypesContainer"></div>
+                <br><br>
+                <div id="totalAmountSection" style="font-weight: bold; font-size: 1.2em;">
+                    Kokonaissumma: <span id="totalAmount">0</span> €
+                </div>
+                <br><br>
                 <button type="button" onclick="createTicket()">Myy Lippu</button>
             </div>
         </form>
@@ -52,6 +57,21 @@
         document.addEventListener('DOMContentLoaded', () => {
             loadEvents();
         });
+
+        // Adding escapeHtml function to escape HTML special characters
+        function escapeHtml(text) {
+            if (!text) return text;
+            return text.replace(/[\"&'<>]/g, function (a) {
+                return {
+                    '"': '&quot;',
+                    '&': '&amp;',
+                    "'": '&#39;',
+                    '<': '&lt;',
+                    '>': '&gt;'
+                }[a];
+            });
+        }
+
 
         async function loadEvents() {
             try {
@@ -85,7 +105,7 @@
                     const div = document.createElement('div');
                     div.innerHTML = `
                         <label>${ticketType.typeName} (${ticketType.ticketPrice} €):</label>
-                        <input type="number" id="ticketType_${ticketType.ticketTypeId}" name="ticketType_${ticketType.ticketTypeId}" min="0" value="0">
+                        <input type="number" id="ticketType_${ticketType.ticketTypeId}" name="ticketType_${ticketType.ticketTypeId}" min="0" value="0" onchange="updateTotalAmount()">
                         <br><br>
                     `;
                     ticketTypesContainer.appendChild(div);
@@ -97,30 +117,46 @@
             }
         }
 
+        function updateTotalAmount() {
+            const ticketTypesContainer = document.getElementById('ticketTypesContainer');
+            const inputs = ticketTypesContainer.getElementsByTagName('input');
+            let totalAmount = 0;
+
+            for (let input of inputs) {
+                const ticketTypeId = input.id.split('_')[1];
+                const quantity = parseInt(input.value, 10);
+                if (quantity > 0) {
+                    const priceText = input.previousElementSibling.textContent.match(/\(([\d.,]+) €/);
+                    if (priceText && priceText[1]) {
+                        const price = parseFloat(priceText[1].replace(',', '.'));
+                        totalAmount += price * quantity;
+                    }
+                }
+            }
+
+            document.getElementById('totalAmount').textContent = totalAmount.toFixed(2);
+        }
+
         async function createTicket() {
             try {
-                // Step 1: Fetch the current logged-in user
                 const userResponse = await fetch('/api/users/me');
                 if (!userResponse.ok) throw new Error('Failed to fetch logged-in user info');
                 const user = await userResponse.json();
                 const userId = user.userId;
 
-                // Step 2: Create a transaction for the user
                 const transactionId = await createTransaction(userId);
-
-                // Step 3: Gather selected tickets and send to backend
                 const ticketTypesContainer = document.getElementById('ticketTypesContainer');
                 const inputs = ticketTypesContainer.getElementsByTagName('input');
 
                 const tickets = [];
                 for (let input of inputs) {
-                    const ticketTypeId = input.id.split('_')[1]; // Extract ticketTypeId from input id
-                    const quantity = parseInt(input.value, 10); // Parse input value as an integer
+                    const ticketTypeId = input.id.split('_')[1];
+                    const quantity = parseInt(input.value, 10);
                     if (quantity > 0) {
                         for (let i = 0; i < quantity; i++) {
                             tickets.push({
-                                ticketType: { ticketTypeId: parseInt(ticketTypeId, 10) }, // Attach valid TicketType ID
-                                transaction: { transactionId: transactionId }, // Link to the created transaction
+                                ticketType: { ticketTypeId: parseInt(ticketTypeId, 10) },
+                                transaction: { transactionId: transactionId },
                             });
                         }
                     }
@@ -207,12 +243,12 @@
                 });
 
                 row.innerHTML = `
-                    <td>${ticket.ticketType?.event?.eventName || 'Tuntematon'}</td>
-                    <td>${ticket.ticketType?.typeName || 'Tuntematon'}</td>
+                    <td>${escapeHtml(ticket.ticketType?.event?.eventName) || 'Tuntematon'}</td>
+                    <td>${escapeHtml(ticket.ticketType?.typeName) || 'Tuntematon'}</td>
                     <td>${ticket.ticketType?.ticketPrice || '0'} €</td>
                     <td>${ticket.hashcode}</td>
                     <td><img src="${qr.toDataURL()}" alt="QR Code"></td>
-                    <td><button onclick="printSingleTicket('${ticket.hashcode}')">Tulosta</button></td>
+                    <td><button onclick="printSingleTicket('${ticket.hashcode}', '${escapeHtml(ticket.ticketType?.typeName)}', '${escapeHtml(ticket.ticketType?.event?.eventName)}', '${ticket.ticketType?.ticketPrice}', '${qr.toDataURL()}')">Tulosta</button></td>
                 `;
 
                 soldTicketsContainer.appendChild(row);
@@ -221,17 +257,113 @@
             document.getElementById('soldTicketsSection').style.display = 'block';
         }
 
-        function printSingleTicket(hashcode) {
+        function printSingleTicket(hashcode, ticketTypeName, eventName, ticketPrice, qrCodeDataUrl) {
             const newWindow = window.open('', '_blank');
-            newWindow.document.write(`<h1>Lippu</h1><p>Koodi: ${hashcode}</p>`);
+
+            // Write the HTML document for the new window
+            newWindow.document.write(`
+        <html>
+            <head>
+                <title>Lippu</title>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        text-align: center;
+                    }
+                    .ticket-container {
+                        border: 1px solid #000;
+                        padding: 20px;
+                        margin: 20px auto;
+                        width: 300px;
+                    }
+                    .qr-code {
+                        margin-top: 20px;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="ticket-container">
+                    <h1>Lippu</h1>
+                    <p><strong>Tapahtuma:</strong> ${eventName}</p>
+                    <p><strong>Lipputyyppi:</strong> ${ticketTypeName}</p>
+                    <p><strong>Hinta:</strong> ${ticketPrice} €</p>
+                    <p><strong>Koodi:</strong> ${hashcode}</p>
+                    <div class="qr-code">
+                        <img src="${qrCodeDataUrl}" alt="QR-koodi">
+                    </div>
+                </div>
+            </body>
+        </html>
+    `);
+            newWindow.document.close();
+
+            // Call window.print() after the document is written
             newWindow.print();
         }
 
         function printTickets() {
-            window.print();
+            const newWindow = window.open('', '_blank');
+
+            // Write the HTML document for the new window
+            newWindow.document.write(`
+        <html>
+            <head>
+                <title>Kaikki Liput</title>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        text-align: center;
+                    }
+                    .ticket-container {
+                        border: 1px solid #000;
+                        padding: 20px;
+                        margin: 20px auto;
+                        width: 300px;
+                        page-break-inside: avoid; /* Prevent page breaks inside a ticket */
+                        page-break-after: always;  /* Ensure each ticket starts on a new page */
+                    }
+                    .qr-code {
+                        margin-top: 20px;
+                    }
+                </style>
+            </head>
+            <body>
+                <h1>Kaikki Liput</h1>
+    `);
+
+            const soldTicketsContainer = document.getElementById('soldTicketsContainer');
+            const rows = soldTicketsContainer.getElementsByTagName('tr');
+
+            // Add ticket details for each sold ticket
+            for (let row of rows) {
+                const eventName = row.children[0].textContent;
+                const ticketTypeName = row.children[1].textContent;
+                const ticketPrice = row.children[2].textContent;
+                const hashcode = row.children[3].textContent;
+                const qrCodeDataUrl = row.children[4].getElementsByTagName('img')[0].src;
+
+                newWindow.document.write(`
+            <div class="ticket-container">
+                <h1>Lippu</h1>
+                <p><strong>Tapahtuma:</strong> ${eventName}</p>
+                <p><strong>Lipputyyppi:</strong> ${ticketTypeName}</p>
+                <p><strong>Hinta:</strong> ${ticketPrice}</p>
+                <p><strong>Koodi:</strong> ${hashcode}</p>
+                <div class="qr-code">
+                    <img src="${qrCodeDataUrl}" alt="QR-koodi">
+                </div>
+            </div>
+        `);
+            }
+
+            // Close the body and html tags
+            newWindow.document.write('</body></html>');
+            newWindow.document.close();
+
+            // Call window.print() after the document is written
+            newWindow.print();
         }
     </script>
 </body>
 
 </html>
-
