@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tapahtumien Hallinta</title>
+    <!-- External CSS -->
+    <link rel="stylesheet" href="/styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>TicketGuru</h1>
+        <h2>Tapahtumat</h2>
+
+        <!-- Tapahtumien lista -->
+        <table>
+            <thead>
+                <tr>
+                    <th>Tapahtuma</th>
+                    <th>Päivämäärä</th>
+                    <th>Kaupunki</th>
+                    <th>Hinta</th>
+                    <th>Toiminnot</th>
+                </tr>
+            </thead>
+            <tbody id="eventsTableBody">
+                <!-- Dynamic content from API -->
+            </tbody>
+        </table>
+
+        <!-- Tapahtuman luominen -->
+        <div class="actions">
+            <button onclick="window.location.href='uusi-tapahtuma.html'">Uusi tapahtuma</button>
+        </div>
+        
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            loadEvents();
+        });
+
+        async function loadEvents() {
+            try {
+                const response = await fetch('/api/events');
+                const events = await response.json();
+                const tableBody = document.getElementById('eventsTableBody');
+
+                tableBody.innerHTML = ''; // Clear existing rows
+
+                events.forEach(event => {
+                    const startDate = new Date(event.startTime);
+                    const formattedStartDate = isNaN(startDate) ? 'Tuntematon' : startDate.toLocaleString();
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${event.eventName}</td>
+                        <td>${formattedStartDate}</td>
+                        <td>${event.venue?.venueName || 'Tuntematon'}</td>
+                        <td>${event.ticketPrice ? event.ticketPrice + ' €' : 'Ei saatavilla'}</td>
+                        <td class="actions">
+                            <button class="edit" onclick="redirectToEdit(${event.eventId})">Muokkaa</button>
+                            <button class="ticket-types" onclick="redirectToTicketTypes(${event.eventId})">Lipputyypit</button>
+                            <button class="report" onclick="redirectToReport(${event.eventId})">Raportti</button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error loading events:', error);
+            }
+        }
+
+        document.getElementById('createEventForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const eventName = document.getElementById('eventName').value;
+            const eventDate = document.getElementById('eventDate').value;
+            const eventPrice = document.getElementById('eventPrice').value;
+
+            try {
+                const response = await fetch('/api/events', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ eventName, eventDate, ticketPrice: eventPrice })
+                });
+
+                if (response.ok) {
+                    alert('Tapahtuma luotu!');
+                    loadEvents();
+                } else {
+                    alert('Virhe tapahtuman luonnissa.');
+                }
+            } catch (error) {
+                console.error('Error creating event:', error);
+            }
+        });
+
+        function redirectToEdit(eventId) {
+            window.location.href = `/events/${eventId}/edit`;
+        }
+
+        function redirectToTicketTypes(eventId) {
+            window.location.href = `/events/${eventId}/tickettypes`;
+        }
+
+        function redirectToReport(eventId) {
+            window.location.href = `/events/${eventId}/report`;
+        }
+    </script>
+</body>
+
+</html>
