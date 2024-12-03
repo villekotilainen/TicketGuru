@@ -56,6 +56,7 @@ public class SecurityConfig {
                                     
                                     .requestMatchers(antMatcher("/css/**")).permitAll()
                                     .requestMatchers(antMatcher("/h2-console/**")).permitAll()
+                                    .requestMatchers("/login", "/").permitAll()
 
                                     // Lipun tarkistus
                                     .requestMatchers(("/")).hasAnyRole("ADMIN", "SALESPERSON")
@@ -99,8 +100,9 @@ public class SecurityConfig {
                     )
                     .formLogin(formlogin -> 
                         formlogin
-                        //.loginPage("/login")
-                        .successHandler(new SavedRequestAwareAuthenticationSuccessHandler()) // redirect to page the user tried to access before login
+                        .loginPage("/")
+                        .loginProcessingUrl("/login") // Lomakkeen action, joka käsittelee kirjautumisen
+                        .defaultSuccessUrl("/myynticlient", true) // Onnistuneen kirjautumisen jälkeen ohjaa tähän
                         .permitAll())
                     .logout(logout -> logout.permitAll());
 

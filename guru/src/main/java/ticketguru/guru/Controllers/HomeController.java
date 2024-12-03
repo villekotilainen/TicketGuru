@@ -13,7 +13,7 @@ public class HomeController {
         return "index"; 
     }
 
-    @GetMapping("/sell")
+    @GetMapping("/myynticlient")
     public String myynticlient() {
         return "myynticlient"; 
     }

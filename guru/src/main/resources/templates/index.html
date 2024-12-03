@@ -4,117 +4,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lippu Client</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-
-        input,
-        button {
-            margin: 10px 0;
-        }
-
-        .response {
-            margin-top: 20px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            background-color: #f9f9f9;
-        }
-    </style>
+    <title>Kirjautuminen - Myynti Client</title>
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
 
 <body>
-    <h1>Lippu Client</h1>
-    <div>
-        <h2>Hae lipun tiedot</h2>
-        <input type="text" id="ticketCode" placeholder="Anna lippukoodi">
-        <button onclick="fetchTicket()">Hae</button>
+    <div class="login-container">
+        <h1>Kirjaudu Sisään</h1>
+        <form method="POST" action="/login">
+            <div class="form-group">
+                <label for="username">Käyttäjänimi:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Salasana:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit">Kirjaudu</button>
+        </form>
     </div>
-
-    <div>
-        <h2>Merkitse lippu käytetyksi</h2>
-        <button onclick="useTicket()">Merkitse käytetyksi</button>
-    </div>
-
-    <div id="response" class="response"></div>
-
-    <script>
-        const apiUrl = 'https://ticket-guru-visionaarit-ticketguru2.2.rahtiapp.fi/api/tickets';
-        const username = 'jane.doe@ticketguru.com';
-        const password = 'TicketInspector123';
-        const encodedCredentials = 'Basic ' + btoa(`${username}:${password}`);
-
-        async function fetchTicket() {
-            const code = document.getElementById('ticketCode').value;
-            const responseDiv = document.getElementById('response');
-
-            if (!code) {
-                responseDiv.innerHTML = 'Anna lippukoodi!';
-                return;
-            }
-
-            try {
-                const response = await fetch(`${apiUrl}/${code}`, {
-                    method: "GET",
-                    headers: {
-                        "Authorization": encodedCredentials,
-                        "Content-Type": "application/json"
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Virhe: ${response.status}`);
-                }
-
-                const data = await response.json();
-                responseDiv.innerHTML = `
-                    <h3>Lipun tiedot</h3>
-                    <p><strong>Koodi:</strong> ${data.ticketCode || data.code}</p>
-                    <p><strong>Voimassa:</strong> ${data.isValid ? 'Kyllä' : 'Ei'}</p>
-                    <p><strong>Käytetty:</strong> ${data.isUsed ? 'Kyllä' : 'Ei'}</p>
-
-        `;
-            } catch (error) {
-                responseDiv.innerHTML = `Virhe: ${error.message}`;
-            }
-        }
-
-        async function useTicket() {
-            const code = document.getElementById('ticketCode').value;
-            const responseDiv = document.getElementById('response');
-
-            if (!code) {
-                responseDiv.innerHTML = 'Anna lippukoodi!';
-                return;
-            }
-
-            try {
-                const response = await fetch(`${apiUrl}/${code}/use`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': encodedCredentials,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Virhe: ${response.status}`);
-                }
-
-                const data = await response.json();
-                responseDiv.innerHTML = `
-            <h3>Lippu merkitty käytetyksi</h3>
-            <p><strong>Koodi:</strong> ${data.code}</p>
-            <p><strong>Käytetty:</strong> ${data.used ? 'Kyllä' : 'Ei'}</p>
-        `;
-            } catch (error) {
-                responseDiv.innerHTML = `Virhe: ${error.message}`;
-            }
-        }
-
-    </script>
 </body>
 
 </html>
