@@ -1,0 +1,84 @@
+*{
+    text-align: center;
+    align-items: center;
+    margin: 1;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Inter,Helvetica,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji","Segoe UI Symbol","Android Emoji",system-ui,"Segoe UI","Helvetica Neue","Noto Sans",sans-serif;
+}
+body {
+    color: whitesmoke;
+    font-family: Inter,Helvetica,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji","Segoe UI Symbol","Android Emoji",system-ui,"Segoe UI","Helvetica Neue","Noto Sans",sans-serif;
+    src: url(https://fonts.googleapis.com/css?family=Noto+Sans);
+    background-image: url('https://images.unsplash.com/photo-1557683316-973673baf926');
+}
+
+.button {
+  background: #3DC2EC;
+  border-radius: 999px;
+  box-sizing: border-box;
+  color: #FFFFFF;
+  cursor: pointer;
+  font-family: Inter,Helvetica,"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji","Segoe UI Symbol","Android Emoji",system-ui,"Segoe UI","Helvetica Neue","Noto Sans",sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 24px;
+  opacity: 1;
+  outline: 0 solid transparent;
+  padding: 8px 18px;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  width: fit-content;
+  word-break: break-word;
+  border: 0;
+}
+
+.button:hover {
+  background: #32a3c5;
+  color: #FFFFFF;
+}
+
+.input-box{
+    padding: 6px 12px;
+    background: white;
+    border: 1px solid black;
+    border-radius: 4px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 700;
+    color: black;
+    height: 46px;
+    appearance: none;
+    text-align: left;
+}
+::placeholder{
+    color: black;
+    opacity: 0.8;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 700;
+    text-align: left;
+}
+#response{
+    color: white;
+    text-decoration: underline;
+    text-align: center;
+    font-size: 30px;
+    font-weight: 600;
+    margin-top: 20px;
+    background-color: none;
+    border: none;
+}
+
+.table{
+    margin-left: auto;
+    margin-right: auto;
+}
+.table th{
+    padding: 10px;
+}
+.login-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
