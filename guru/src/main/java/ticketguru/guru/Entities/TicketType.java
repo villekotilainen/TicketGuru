@@ -28,7 +28,7 @@ public class TicketType {
     private List<Ticket> tickets; 
 
     @ManyToOne
-    @JoinColumn(name = "eventId") //many-to-one relationship with Event
+    @JoinColumn(name = "eventId", nullable = false) //many-to-one relationship with Event
     private Event event;
 
     public TicketType(Long ticketTypeId, Double ticketPrice, String typeName, Integer totalCount, Event event) {

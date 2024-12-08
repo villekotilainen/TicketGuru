@@ -2,6 +2,7 @@ package ticketguru.guru.Controllers;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 
@@ -22,6 +23,18 @@ public class HomeController {
     public String editevent() {
         return "editevent";
     }
+
+    @GetMapping("/events/{eventId}/edit")
+    public String editEvent(@PathVariable Long eventId) {
+        return "muokkaa-tapahtumaa";
+    }
+
+    @GetMapping("/uusi-tapahtuma")
+    public String uusiTapahtuma() {
+        return "uusi-tapahtuma";
+    }
+    
+
     
 }
 

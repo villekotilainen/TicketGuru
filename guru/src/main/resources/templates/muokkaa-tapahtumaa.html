@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="fi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muokkaa Tapahtumaa</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Muokkaa Tapahtumaa</h1>
+        <form id="editEventForm">
+            <div class="form-group">
+                <label for="eventName">Tapahtuman nimi:</label>
+                <input type="text" id="eventName" name="eventName" required>
+            </div>
+            <div class="form-group">
+                <label for="startTime">Aloitusaika:</label>
+                <input type="datetime-local" id="startTime" name="startTime" required>
+            </div>
+            <div class="form-group">
+                <label for="endTime">Lopetusaika:</label>
+                <input type="datetime-local" id="endTime" name="endTime" required>
+            </div>
+            <div class="form-group">
+                <label for="eventDescription">Kuvaus:</label>
+                <textarea id="eventDescription" name="eventDescription"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="venueName">Tapahtumapaikka:</label>
+                <input type="text" id="venueName" name="venueName" required>
+            </div>
+            <button type="submit">Tallenna muutokset</button>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const eventId = urlParams.get('eventId');
+
+            if (eventId) {
+                fetchEvent(eventId);
+            }
+
+            const editEventForm = document.getElementById('editEventForm');
+            editEventForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+                updateEvent(eventId);
+            });
+        });
+
+        async function fetchEvent(eventId) {
+            try {
+                const response = await fetch(`/api/events/${eventId}`);
+                if (response.ok) {
+                    const event = await response.json();
+                    document.getElementById('eventName').value = event.eventName;
+                    document.getElementById('startTime').value = new Date(event.startTime).toISOString().slice(0, 16);
+                    document.getElementById('endTime').value = new Date(event.endTime).toISOString().slice(0, 16);
+                    document.getElementById('eventDescription').value = event.eventDescription;
+                    document.getElementById('venueName').value = event.venue.venueName;
+                } else {
+                    alert('Tapahtumaa ei löytynyt.');
+                }
+            } catch (error) {
+                console.error('Error fetching event:', error);
+            }
+        }
+
+        async function updateEvent(eventId) {
+            const updatedEvent = {
+                eventName: document.getElementById('eventName').value,
+                startTime: document.getElementById('startTime').value,
+                endTime: document.getElementById('endTime').value,
+                eventDescription: document.getElementById('eventDescription').value,
+                venueName: document.getElementById('venueName').value,
+            };
+
+            try {
+                const response = await fetch(`/api/events/${eventId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(updatedEvent),
+                });
+
+                if (response.ok) {
+                    alert('Tapahtuma päivitetty onnistuneesti!');
+                    window.location.href = '/editevent'; // Redirect to events list
+                } else {
+                    alert('Virhe tapahtuman päivittämisessä.');
+                }
+            } catch (error) {
+                console.error('Error updating event:', error);
+            }
+        }
+    </script>
+</body>
+
+</html>
