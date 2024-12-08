@@ -36,22 +36,69 @@
             <label for="eventVenue">Tapahtumapaikka:</label>
             <input type="text" id="eventVenue" placeholder="Syötä tapahtumapaikka" required>
 
+            <h2>Lipputyypit</h2>
+            <div id="ticketTypeSection">
+                <label for="ticketTypeName">Lipputyypin nimi:</label>
+                <input type="text" id="ticketTypeName" placeholder="Esim. Peruslippu">
+                <label for="ticketTypePrice">Hinta (€):</label>
+                <input type="number" id="ticketTypePrice" placeholder="Esim. 20.00">
+                <button type="button" onclick="addTicketType()">Lisää lipputyyppi</button>
+            </div>
+            <ul id="ticketTypeList"></ul>
+
             <button type="submit">Tallenna tapahtuma</button>
         </form>
     </div>
 
     <script>
-        document.getElementById('createEventForm').addEventListener('submit', async (event) => {
+        let ticketTypes = [];
+
+        // Add ticket type
+        function addTicketType() {
+            const ticketTypeName = document.getElementById("ticketTypeName").value.trim();
+            const ticketTypePrice = parseFloat(document.getElementById("ticketTypePrice").value.trim());
+
+            if (!ticketTypeName || isNaN(ticketTypePrice)) {
+                alert("Täytä sekä lipputyypin nimi että hinta!");
+                return;
+            }
+
+            ticketTypes.push({ typeName: ticketTypeName, ticketPrice: ticketTypePrice });
+
+            const ticketList = document.getElementById("ticketTypeList");
+            const li = document.createElement("li");
+            li.textContent = `Nimi: ${ticketTypeName}, Hinta: ${ticketTypePrice} €`;
+            const deleteButton = document.createElement("button");
+            deleteButton.textContent = "Poista";
+            deleteButton.onclick = () => {
+                ticketTypes = ticketTypes.filter(t => t.typeName !== ticketTypeName);
+                ticketList.removeChild(li);
+            };
+            li.appendChild(deleteButton);
+            ticketList.appendChild(li);
+
+            document.getElementById("ticketTypeName").value = "";
+            document.getElementById("ticketTypePrice").value = "";
+        }
+
+        // Create event and associated ticket types
+        document.getElementById("createEventForm").addEventListener("submit", async (event) => {
             event.preventDefault();
 
-            const eventName = document.getElementById('eventName').value.trim();
-            const startTime = document.getElementById('startTime').value;
-            const endTime = document.getElementById('endTime').value;
-            const eventDescription = document.getElementById('eventDescription').value.trim();
-            const eventVenue = document.getElementById('eventVenue').value.trim();
+            const eventName = document.getElementById("eventName").value.trim();
+            const startTime = document.getElementById("startTime").value;
+            const endTime = document.getElementById("endTime").value;
+            const eventDescription = document.getElementById("eventDescription").value.trim();
+            const eventVenue = document.getElementById("eventVenue").value.trim();
+
+            if (!eventName || !startTime || !eventVenue) {
+                alert("Täytä kaikki tapahtuman kentät!");
+                return;
+            }
 
             try {
-                const response = await fetch('/api/events', {
+                // Step 1: Create the event
+                const eventResponse = await fetch('/api/events', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -63,19 +110,34 @@
                     })
                 });
 
-                if (response.ok) {
-                    alert('Tapahtuma luotu onnistuneesti!');
-                    window.location.href = '/editevent';
-                } else {
-                    const errorText = await response.text();
+                if (!eventResponse.ok) {
+                    const errorText = await eventResponse.text();
                     alert(`Tapahtuman luonti epäonnistui! Virhe: ${errorText}`);
+                    return;
                 }
+
+                const event = await eventResponse.json();
+
+                // Step 2: Add ticket types
+                for (const ticketType of ticketTypes) {
+                    await fetch(`/api/events/${event.eventId}/tickettypes`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(ticketType)
+                    });
+                }
+
+                alert("Tapahtuma ja lipputyypit luotu onnistuneesti!");
+
+                // Redirect to myynticlient
+                window.location.href = "/editevent";
             } catch (error) {
-                console.error('Error creating event:', error);
-                alert('Virhe tapahtuman luonnissa. Tarkista tiedot ja yritä uudelleen.');
+                console.error("Error creating event:", error);
+                alert("Virhe tapahtuman luonnissa. Tarkista tiedot ja yritä uudelleen.");
             }
         });
     </script>
 </body>
 
 </html>
+

@@ -29,7 +29,7 @@ public class Event {
     private Venue venue;
 
     @JsonIgnore
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "event") //one-to-many relationship with TicketType
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "event", orphanRemoval = true) //one-to-many relationship with TicketType
     private List<TicketType> ticketTypes;
 
     public Event(Long eventId, String eventName, LocalDateTime startTime, LocalDateTime endTime, String eventDescription, Venue venue) {
