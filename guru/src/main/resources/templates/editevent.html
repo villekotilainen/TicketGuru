@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tapahtumien Hallinta</title>
-    <!-- External CSS -->
     <link rel="stylesheet" href="/styles.css">
 </head>
 
@@ -23,7 +22,6 @@
         <h1>TicketGuru</h1>
         <h2>Tapahtumat</h2>
 
-        <!-- Tapahtumien lista -->
         <table>
             <thead>
                 <tr>
@@ -39,11 +37,10 @@
             </tbody>
         </table>
 
-        <!-- Tapahtuman luominen -->
+        <!-- Button to create a new event -->
         <div class="actions">
-            <button onclick="window.location.href='/uusi-tapahtuma'">Uusi tapahtuma</button>
+            <button onclick="window.location.href='/uusi-tapahtuma'">Luo tapahtuma</button>
         </div>
-        
     </div>
 
     <script>
@@ -71,8 +68,7 @@
                         <td>${event.ticketPrice ? event.ticketPrice + ' €' : 'Ei saatavilla'}</td>
                         <td class="actions">
                             <button class="edit" onclick="redirectToEdit(${event.eventId})">Muokkaa</button>
-                            <button class="ticket-types" onclick="redirectToTicketTypes(${event.eventId})">Lipputyypit</button>
-                            <button class="report" onclick="redirectToReport(${event.eventId})">Raportti</button>
+                            <button class="delete" onclick="deleteEvent(${event.eventId})">Poista</button>
                         </td>
                     `;
                     tableBody.appendChild(row);
@@ -82,41 +78,27 @@
             }
         }
 
-        document.getElementById('createEventForm').addEventListener('submit', async (event) => {
-            event.preventDefault();
-
-            const eventName = document.getElementById('eventName').value;
-            const eventDate = document.getElementById('eventDate').value;
-            const eventPrice = document.getElementById('eventPrice').value;
-
-            try {
-                const response = await fetch('/api/events', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ eventName, eventDate, ticketPrice: eventPrice })
-                });
-
-                if (response.ok) {
-                    alert('Tapahtuma luotu!');
-                    loadEvents();
-                } else {
-                    alert('Virhe tapahtuman luonnissa.');
-                }
-            } catch (error) {
-                console.error('Error creating event:', error);
-            }
-        });
-
         function redirectToEdit(eventId) {
             window.location.href = `/events/${eventId}/edit`;
         }
 
-        function redirectToTicketTypes(eventId) {
-            window.location.href = `/events/${eventId}/tickettypes`;
-        }
+        async function deleteEvent(eventId) {
+            if (confirm('Haluatko varmasti poistaa tapahtuman?')) {
+                try {
+                    const response = await fetch(`/api/events/${eventId}`, {
+                        method: 'DELETE'
+                    });
 
-        function redirectToReport(eventId) {
-            window.location.href = `/events/${eventId}/report`;
+                    if (response.ok) {
+                        alert('Tapahtuma poistettu onnistuneesti!');
+                        loadEvents(); // Reload events list
+                    } else {
+                        alert('Virhe tapahtuman poistamisessa.');
+                    }
+                } catch (error) {
+                    console.error('Error deleting event:', error);
+                }
+            }
         }
     </script>
 </body>

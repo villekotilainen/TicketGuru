@@ -20,6 +20,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         TGUser tgUser = tgUserRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        System.out.println("Loaded user: " + tgUser.getEmail() + " with roles: " + tgUser.getUserrole().getRole());
 
         return User.builder()
                 .username(tgUser.getEmail())

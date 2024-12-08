@@ -1,6 +1,6 @@
 package ticketguru.guru.Entities;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -20,8 +20,8 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long eventId;
     private String eventName;
-    private LocalDate startTime;
-    private LocalDate endTime;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
     private String eventDescription;
 
     @ManyToOne
@@ -32,7 +32,7 @@ public class Event {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "event") //one-to-many relationship with TicketType
     private List<TicketType> ticketTypes;
 
-    public Event(Long eventId, String eventName, LocalDate startTime, LocalDate endTime, String eventDescription, Venue venue) {
+    public Event(Long eventId, String eventName, LocalDateTime startTime, LocalDateTime endTime, String eventDescription, Venue venue) {
         this.eventId = eventId;
         this.eventName = eventName;
         this.startTime = startTime;
@@ -60,19 +60,19 @@ public class Event {
         this.eventName = eventName;
     }
 
-    public LocalDate getStartTime() {
+    public LocalDateTime getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(LocalDate startTime) {
+    public void setStartTime(LocalDateTime startTime) {
         this.startTime = startTime;
     }
 
-    public LocalDate getEndTime() {
+    public LocalDateTime getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(LocalDate endTime) {
+    public void setEndTime(LocalDateTime endTime) {
         this.endTime = endTime;
     }
 

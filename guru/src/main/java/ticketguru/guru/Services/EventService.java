@@ -25,6 +25,15 @@ public class EventService {
         this.venueRepository = venueRepository;
     }
 
+    public Event createEvent(Event event) {
+        Venue venue = event.getVenue();
+        if (venue != null && venue.getVenueId() == null) {
+            venue = venueRepository.save(venue); // Persist venue if it's new
+            event.setVenue(venue);
+        }
+        return eventRepository.save(event);
+    }
+
     public Event updateEvent(Long id, EventDTO eventDTO) throws EntityNotFoundException {
         Optional<Event> optionalEvent = eventRepository.findById(id);
         if (optionalEvent.isPresent()) {

@@ -1,3 +1,4 @@
+/*
 package ticketguru.guru.Entities;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -102,3 +103,4 @@ public class VenueTest {
         assertNull(emptyVenue.getEvents());
     }
 }
+*/

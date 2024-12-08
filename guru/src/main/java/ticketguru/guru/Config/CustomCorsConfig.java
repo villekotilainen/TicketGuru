@@ -15,16 +15,19 @@ public class CustomCorsConfig {
     public CorsConfigurationSource getCorsConfigurationSource() {
 
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("https://ticket-guru-visionaarit-ticketguru2.2.rahtiapp.fi","http://localhost:8080")); // Specify allowed origin(s)
-        config.setAllowedMethods(List.of("GET", "PUT", "POST", "OPTIONS")); // Allow specified HTTP methods
-        config.setAllowedHeaders(List.of("*")); // Allow all headers
+        config.setAllowedOrigins(List.of(
+            "https://ticket-guru-visionaarit-ticketguru2.2.rahtiapp.fi",
+            "http://localhost:8080"
+        )); // Specify allowed origin(s)
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "OPTIONS", "DELETE")); // Include DELETE if required
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type")); // Limit to required headers
         config.setAllowCredentials(true);
-        config.setExposedHeaders(List.of("Authorization", "Content-Type"));
+        config.setExposedHeaders(List.of("Authorization", "Content-Type")); // Expose only if required
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/api/**", config); // Specify endpoint(s)
+        source.registerCorsConfiguration("/**", config); // Apply to all paths, adjust if needed
 
         return source;
-
     }
 }
+

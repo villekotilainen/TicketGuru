@@ -1,13 +1,13 @@
 package ticketguru.guru.dto;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class EventDTO {
     
     private Long eventId;
     private String eventName;
-    private LocalDate startTime;
-    private LocalDate endTime;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
     private String eventDescription;
     private String venueName;
 
@@ -16,7 +16,7 @@ public class EventDTO {
     }
 
     // Constructor with fields
-    public EventDTO(Long eventId, String eventName, LocalDate startTime, LocalDate endTime, String eventDescription, String venueName) {
+    public EventDTO(Long eventId, String eventName, LocalDateTime startTime, LocalDateTime endTime, String eventDescription, String venueName) {
         this.eventId = eventId;
         this.eventName = eventName;
         this.startTime = startTime;
@@ -43,19 +43,19 @@ public class EventDTO {
         this.eventName = eventName;
     }
 
-    public LocalDate getStartTime() {
+    public LocalDateTime getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(LocalDate startTime) {
+    public void setStartTime(LocalDateTime startTime) {
         this.startTime = startTime;
     }
 
-    public LocalDate getEndTime() {
+    public LocalDateTime getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(LocalDate endTime) {
+    public void setEndTime(LocalDateTime endTime) {
         this.endTime = endTime;
     }
 
