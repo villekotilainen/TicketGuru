@@ -27,8 +27,7 @@
                 <tr>
                     <th>Tapahtuma</th>
                     <th>Päivämäärä</th>
-                    <th>Kaupunki</th>
-                    <th>Hinta</th>
+                    <th>Paikka</th>
                     <th>Toiminnot</th>
                 </tr>
             </thead>
@@ -65,7 +64,6 @@
                         <td>${event.eventName}</td>
                         <td>${formattedStartDate}</td>
                         <td>${event.venue?.venueName || 'Tuntematon'}</td>
-                        <td>${event.ticketPrice ? event.ticketPrice + ' €' : 'Ei saatavilla'}</td>
                         <td class="actions">
                             <button class="edit" onclick="redirectToEdit(${event.eventId})">Muokkaa</button>
                             <button class="delete" onclick="deleteEvent(${event.eventId})">Poista</button>

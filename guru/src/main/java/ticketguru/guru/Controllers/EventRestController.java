@@ -77,78 +77,90 @@ public class EventRestController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateEvent(@PathVariable Long id, @RequestBody Event updatedEvent) {
-        try {
-            // Hae olemassa oleva tapahtuma
-            Optional<Event> optionalEvent = eventRepository.findById(id);
-            if (!optionalEvent.isPresent()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Event not found.");
-            }
-    
-            Event event = optionalEvent.get();
-    
-            // Päivitä tapahtuman perusdetaljit
-            event.setEventName(updatedEvent.getEventName());
-            event.setStartTime(updatedEvent.getStartTime());
-            event.setEndTime(updatedEvent.getEndTime());
-            event.setEventDescription(updatedEvent.getEventDescription());
-    
-            // Päivitä tai luo uusi venue
-            if (updatedEvent.getVenue() != null) {
-                Optional<Venue> optionalVenue = venueRepository.findById(updatedEvent.getVenue().getVenueId());
+public ResponseEntity<?> updateEvent(@PathVariable Long id, @RequestBody Event updatedEvent) {
+    try {
+        // Find the existing event
+        Optional<Event> optionalEvent = eventRepository.findById(id);
+        if (!optionalEvent.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Event not found.");
+        }
+
+        Event event = optionalEvent.get();
+
+        // Update basic event details
+        event.setEventName(updatedEvent.getEventName());
+        event.setStartTime(updatedEvent.getStartTime());
+        event.setEndTime(updatedEvent.getEndTime());
+        event.setEventDescription(updatedEvent.getEventDescription());
+
+        // Handle venue update
+        if (updatedEvent.getVenue() != null) {
+            Venue updatedVenue = updatedEvent.getVenue();
+            if (updatedVenue.getVenueId() != null) {
+                // Fetch the existing venue from the database
+                Optional<Venue> optionalVenue = venueRepository.findById(updatedVenue.getVenueId());
                 if (optionalVenue.isPresent()) {
                     event.setVenue(optionalVenue.get());
                 } else {
-                    event.setVenue(updatedEvent.getVenue());
+                    // If venue is new, save it first
+                    Venue savedVenue = venueRepository.save(updatedVenue);
+                    event.setVenue(savedVenue);
                 }
+            } else {
+                // If no venueId is provided, save the new venue
+                Venue savedVenue = venueRepository.save(updatedVenue);
+                event.setVenue(savedVenue);
             }
-    
-            // Tallenna päivitetty tapahtuma
-            Event savedEvent = eventRepository.save(event);
-    
-            // Päivitä lipputyypit
-            if (updatedEvent.getTicketTypes() != null) {
-                // Poista lipputyypit, joita ei enää ole mukana
-                List<Long> updatedTicketTypeIds = updatedEvent.getTicketTypes().stream()
-                        .map(TicketType::getTicketTypeId)
-                        .filter(idVal -> idVal != null)
-                        .toList();
-    
-                List<TicketType> currentTicketTypes = ticketTypeRepository.findByEventEventId(savedEvent.getEventId());
-                for (TicketType currentType : currentTicketTypes) {
-                    if (!updatedTicketTypeIds.contains(currentType.getTicketTypeId())) {
-                        ticketTypeRepository.delete(currentType);
-                    }
-                }
-    
-                // Päivitä tai lisää uusia lipputyyppejä
-                for (TicketType ticketType : updatedEvent.getTicketTypes()) {
-                    if (ticketType.getTicketTypeId() != null) {
-                        // Päivitä olemassa oleva lipputyyppi
-                        Optional<TicketType> optionalTicketType = ticketTypeRepository.findById(ticketType.getTicketTypeId());
-                        if (optionalTicketType.isPresent()) {
-                            TicketType existingTicketType = optionalTicketType.get();
-                            existingTicketType.setTypeName(ticketType.getTypeName());
-                            existingTicketType.setTicketPrice(ticketType.getTicketPrice());
-                            existingTicketType.setEvent(savedEvent);
-                            ticketTypeRepository.save(existingTicketType);
-                        }
-                    } else {
-                        // Luo uusi lipputyyppi
-                        ticketType.setEvent(savedEvent);
-                        ticketTypeRepository.save(ticketType);
-                    }
-                }
-            }
-    
-            return ResponseEntity.ok(savedEvent);
-    
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error updating event: " + e.getMessage());
         }
+
+        // Save the updated event
+        Event savedEvent = eventRepository.save(event);
+
+        // Update ticket types
+        if (updatedEvent.getTicketTypes() != null) {
+            // Remove ticket types that are no longer associated with the event
+            List<Long> updatedTicketTypeIds = updatedEvent.getTicketTypes().stream()
+                    .map(TicketType::getTicketTypeId)
+                    .filter(idVal -> idVal != null)
+                    .toList();
+
+            List<TicketType> currentTicketTypes = ticketTypeRepository.findByEventEventId(savedEvent.getEventId());
+            for (TicketType currentType : currentTicketTypes) {
+                if (!updatedTicketTypeIds.contains(currentType.getTicketTypeId())) {
+                    ticketTypeRepository.delete(currentType);
+                }
+            }
+
+            // Add or update ticket types
+            for (TicketType ticketType : updatedEvent.getTicketTypes()) {
+                if (ticketType.getTicketTypeId() != null) {
+                    // Update existing ticket type
+                    Optional<TicketType> optionalTicketType = ticketTypeRepository.findById(ticketType.getTicketTypeId());
+                    if (optionalTicketType.isPresent()) {
+                        TicketType existingTicketType = optionalTicketType.get();
+                        existingTicketType.setTypeName(ticketType.getTypeName());
+                        existingTicketType.setTicketPrice(ticketType.getTicketPrice());
+                        existingTicketType.setTotalCount(ticketType.getTotalCount());
+                        existingTicketType.setEvent(savedEvent);
+                        ticketTypeRepository.save(existingTicketType);
+                    }
+                } else {
+                    // Add new ticket type
+                    ticketType.setEvent(savedEvent);
+                    ticketTypeRepository.save(ticketType);
+                }
+            }
+        }
+
+        return ResponseEntity.ok(savedEvent);
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Error updating event: " + e.getMessage());
     }
+}
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEvent(@PathVariable Long id) {
