@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.persistence.EntityNotFoundException;
 import ticketguru.guru.Entities.Event;
 import ticketguru.guru.Entities.TicketType;
+import ticketguru.guru.Entities.Venue;
 import ticketguru.guru.Repositories.EventRepository;
 import ticketguru.guru.Repositories.TicketTypeRepository;
 import ticketguru.guru.Repositories.VenueRepository;
@@ -39,11 +40,19 @@ public class EventRestController {
         return eventRepository.findAll();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Event> getEventById(@PathVariable Long id) {
-        Optional<Event> event = eventRepository.findById(id);
-        return event.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    @GetMapping("/{eventId}")
+    public ResponseEntity<?> getEventById(@PathVariable Long eventId) {
+        try {
+            Optional<Event> event = eventRepository.findById(eventId);
+            if (event.isPresent()) {
+                return ResponseEntity.ok(event.get());
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Event with ID " + eventId + " not found.");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error retrieving event: " + e.getMessage());
+        }
     }
 
     @PostMapping
@@ -68,16 +77,65 @@ public class EventRestController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateEvent(@PathVariable Long id, @RequestBody EventDTO eventDTO) {
-        try {
-            Event updatedEvent = eventService.updateEvent(id, eventDTO);
-            return ResponseEntity.ok(updatedEvent);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error updating event: " + e.getMessage());
+   public ResponseEntity<?> updateEvent(@PathVariable Long id, @RequestBody Event updatedEvent) {
+    try {
+        // Find the existing event
+        Optional<Event> optionalEvent = eventRepository.findById(id);
+        if (!optionalEvent.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Event not found.");
         }
+
+        Event event = optionalEvent.get();
+
+        // Update the event's basic details
+        event.setEventName(updatedEvent.getEventName());
+        event.setStartTime(updatedEvent.getStartTime());
+        event.setEndTime(updatedEvent.getEndTime());
+        event.setEventDescription(updatedEvent.getEventDescription());
+
+        // Update or create venue
+        if (updatedEvent.getVenue() != null) {
+            Optional<Venue> optionalVenue = venueRepository.findById(updatedEvent.getVenue().getVenueId());
+            if (optionalVenue.isPresent()) {
+                event.setVenue(optionalVenue.get());
+            } else {
+                event.setVenue(updatedEvent.getVenue());
+            }
+        }
+
+        // Save the updated event
+        Event savedEvent = eventRepository.save(event);
+
+        // Update ticket types
+        if (updatedEvent.getTicketTypes() != null) {
+            for (TicketType ticketType : updatedEvent.getTicketTypes()) {
+                if (ticketType.getTicketTypeId() != null) {
+                    // Update existing ticket type
+                    Optional<TicketType> optionalTicketType = ticketTypeRepository.findById(ticketType.getTicketTypeId());
+                    if (optionalTicketType.isPresent()) {
+                        TicketType existingTicketType = optionalTicketType.get();
+                        existingTicketType.setTypeName(ticketType.getTypeName());
+                        existingTicketType.setTicketPrice(ticketType.getTicketPrice());
+                        existingTicketType.setEvent(savedEvent); // Associate with the updated event
+                        ticketTypeRepository.save(existingTicketType);
+                    }
+                } else {
+                    // Create new ticket type
+                    ticketType.setEvent(savedEvent);
+                    ticketTypeRepository.save(ticketType);
+                }
+            }
+        }
+
+        return ResponseEntity.ok(savedEvent);
+
+    } catch (Exception e) {
+        e.printStackTrace(); // Log the error
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Error updating event: " + e.getMessage());
     }
+}
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEvent(@PathVariable Long id) {

@@ -2,103 +2,165 @@
 <html lang="fi">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Muokkaa Tapahtumaa</title>
-    <link rel="stylesheet" href="/styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Muokkaa Tapahtumaa</title>
+  <link rel="stylesheet" href="/styles.css">
 </head>
 
 <body>
-    <div class="container">
-        <h1>Muokkaa Tapahtumaa</h1>
-        <form id="editEventForm">
-            <div class="form-group">
-                <label for="eventName">Tapahtuman nimi:</label>
-                <input type="text" id="eventName" name="eventName" required>
-            </div>
-            <div class="form-group">
-                <label for="startTime">Aloitusaika:</label>
-                <input type="datetime-local" id="startTime" name="startTime" required>
-            </div>
-            <div class="form-group">
-                <label for="endTime">Lopetusaika:</label>
-                <input type="datetime-local" id="endTime" name="endTime" required>
-            </div>
-            <div class="form-group">
-                <label for="eventDescription">Kuvaus:</label>
-                <textarea id="eventDescription" name="eventDescription"></textarea>
-            </div>
-            <div class="form-group">
-                <label for="venueName">Tapahtumapaikka:</label>
-                <input type="text" id="venueName" name="venueName" required>
-            </div>
-            <button type="submit">Tallenna muutokset</button>
-        </form>
+  <nav class="navbar">
+    <div class="navbar-container">
+      <a href="/myynticlient" class="nav-link">Myynti</a>
+      <a href="/editevent" class="nav-link">Tapahtumat</a>
+      <a href="/raportti" class="nav-link">Raportti</a>
+      <a href="/logout" class="nav-link logout-link">Kirjaudu ulos</a>
     </div>
+  </nav>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const eventId = urlParams.get('eventId');
+  <div class="container">
+    <h1>Muokkaa Tapahtumaa</h1>
+    <form id="editEventForm">
+      <label for="eventName">Tapahtuman nimi:</label>
+      <input type="text" id="eventName" required>
 
-            if (eventId) {
-                fetchEvent(eventId);
-            }
+      <label for="startTime">Aloitusaika:</label>
+      <input type="datetime-local" id="startTime" required>
 
-            const editEventForm = document.getElementById('editEventForm');
-            editEventForm.addEventListener('submit', (event) => {
-                event.preventDefault();
-                updateEvent(eventId);
-            });
+      <label for="endTime">Lopetusaika:</label>
+      <input type="datetime-local" id="endTime">
+
+      <label for="eventDescription">Kuvaus:</label>
+      <textarea id="eventDescription"></textarea>
+
+      <label for="eventVenue">Tapahtumapaikka:</label>
+      <input type="text" id="eventVenue" required>
+
+      <h2>Lipputyypit</h2>
+      <div id="ticketTypeSection">
+        <ul id="ticketTypeList"></ul>
+      </div>
+
+      <button type="submit">Tallenna muutokset</button>
+    </form>
+  </div>
+
+  <script>
+    let ticketTypes = [];
+    const eventId = window.location.pathname.split("/")[2]; // Correct extraction of event ID
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      await loadEventData();
+    });
+
+    async function loadEventData() {
+      try {
+        console.log("Event ID:", eventId);
+
+        const response = await fetch(`/api/events/${eventId}`);
+        if (!response.ok) {
+          throw new Error("Tapahtuman tietojen hakeminen epäonnistui.");
+        }
+        const event = await response.json();
+
+        document.getElementById("eventName").value = event.eventName || "";
+        document.getElementById("startTime").value = event.startTime
+          ? new Date(event.startTime).toISOString().slice(0, 16)
+          : "";
+        document.getElementById("endTime").value = event.endTime
+          ? new Date(event.endTime).toISOString().slice(0, 16)
+          : "";
+        document.getElementById("eventDescription").value = event.eventDescription || "";
+        document.getElementById("eventVenue").value = event.venue?.venueName || "";
+
+        // Load ticket types
+        const ticketResponse = await fetch(`/api/tickettypes/event/${eventId}`);
+        if (!ticketResponse.ok) {
+          throw new Error("Lipputyyppien lataaminen epäonnistui.");
+        }
+        ticketTypes = await ticketResponse.json();
+        renderTicketTypes();
+      } catch (error) {
+        console.error("Error loading event data:", error);
+        alert("Tapahtuman tietojen lataaminen epäonnistui.");
+      }
+    }
+
+    function renderTicketTypes() {
+      const ticketList = document.getElementById("ticketTypeList");
+      ticketList.innerHTML = "";
+
+      ticketTypes.forEach((ticketType, index) => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+                    <input type="text" value="${ticketType.typeName}" data-index="${index}" class="ticket-name">
+                    <input type="number" value="${ticketType.ticketPrice}" data-index="${index}" class="ticket-price">
+                    <button type="button" onclick="deleteTicketType(${index})">Poista</button>
+                `;
+        ticketList.appendChild(li);
+      });
+    }
+
+    function deleteTicketType(index) {
+      ticketTypes.splice(index, 1);
+      renderTicketTypes();
+    }
+
+    document.getElementById("editEventForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const updatedEvent = {
+        eventId, // Ensure the eventId is included
+        eventName: document.getElementById("eventName").value.trim(),
+        startTime: document.getElementById("startTime").value,
+        endTime: document.getElementById("endTime").value,
+        eventDescription: document.getElementById("eventDescription").value.trim(),
+        venue: {
+          venueId: ticketTypes[0]?.event?.venue?.venueId || null, // Pass venueId if available
+          venueName: document.getElementById("eventVenue").value.trim()
+        }
+      };
+
+      try {
+        // Update event
+        const eventResponse = await fetch(`/api/events/${eventId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updatedEvent),
         });
 
-        async function fetchEvent(eventId) {
-            try {
-                const response = await fetch(`/api/events/${eventId}`);
-                if (response.ok) {
-                    const event = await response.json();
-                    document.getElementById('eventName').value = event.eventName;
-                    document.getElementById('startTime').value = new Date(event.startTime).toISOString().slice(0, 16);
-                    document.getElementById('endTime').value = new Date(event.endTime).toISOString().slice(0, 16);
-                    document.getElementById('eventDescription').value = event.eventDescription;
-                    document.getElementById('venueName').value = event.venue.venueName;
-                } else {
-                    alert('Tapahtumaa ei löytynyt.');
-                }
-            } catch (error) {
-                console.error('Error fetching event:', error);
-            }
+        if (!eventResponse.ok) {
+          throw new Error("Tapahtuman päivitys epäonnistui.");
         }
 
-        async function updateEvent(eventId) {
-            const updatedEvent = {
-                eventName: document.getElementById('eventName').value,
-                startTime: document.getElementById('startTime').value,
-                endTime: document.getElementById('endTime').value,
-                eventDescription: document.getElementById('eventDescription').value,
-                venueName: document.getElementById('venueName').value,
-            };
+        // Update ticket types
+        for (const ticketType of ticketTypes) {
+          const ticketTypePayload = {
+            ticketTypeId: ticketType.ticketTypeId,
+            typeName: ticketType.typeName,
+            ticketPrice: ticketType.ticketPrice,
+            event: { eventId }, // Ensure ticket type is linked to the event
+          };
 
-            try {
-                const response = await fetch(`/api/events/${eventId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(updatedEvent),
-                });
+          const ticketResponse = await fetch(`/api/tickettypes/${ticketType.ticketTypeId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(ticketTypePayload),
+          });
 
-                if (response.ok) {
-                    alert('Tapahtuma päivitetty onnistuneesti!');
-                    window.location.href = '/editevent'; // Redirect to events list
-                } else {
-                    alert('Virhe tapahtuman päivittämisessä.');
-                }
-            } catch (error) {
-                console.error('Error updating event:', error);
-            }
+          if (!ticketResponse.ok) {
+            throw new Error("Lipputyypin päivitys epäonnistui.");
+          }
         }
-    </script>
+
+        alert("Muutokset tallennettu onnistuneesti!");
+        window.location.href = "/editevent";
+      } catch (error) {
+        console.error("Error updating event:", error);
+        alert("Virhe tallennuksessa. Tarkista tiedot ja yritä uudelleen.");
+      }
+    });
+  </script>
 </body>
 
 </html>
