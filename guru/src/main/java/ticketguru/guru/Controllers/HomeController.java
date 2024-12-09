@@ -32,6 +32,11 @@ public class HomeController {
     public String uusiTapahtuma() {
         return "uusi-tapahtuma";
     }
+
+    @GetMapping("/raportti")
+    public String raportti() {
+        return "raportti";
+    }
     
 
     

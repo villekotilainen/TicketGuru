@@ -113,4 +113,16 @@ public class TransactionService {
         dto.setTickets(ticketDTOs);
         return dto;
     }
+
+    public List<TransactionDTO> getTransactionsByEventId(Long eventId) {
+        List<Transaction> transactions = transactionRepository.findAll();
+    
+        // Suodata transaktiot tapahtuman perusteella
+        return transactions.stream()
+                .filter(transaction -> transaction.getTickets().stream()
+                        .anyMatch(ticket -> ticket.getTicketType().getEvent().getEventId().equals(eventId)))
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+    
 }

@@ -39,18 +39,21 @@ public class TransactionRestController {
     @PostMapping
     public ResponseEntity<?> createTransaction(@RequestBody TransactionRequest request) {
         try {
-            Transaction transaction = transactionService.createTransactionWithTickets(request.getTicketTypeIds(), request.getUserId());
+            Transaction transaction = transactionService.createTransactionWithTickets(request.getTicketTypeIds(),
+                    request.getUserId());
             return ResponseEntity.status(HttpStatus.CREATED).body(transactionService.convertToDTO(transaction));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while creating the transaction.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while creating the transaction.");
         }
     }
 
     // PUT: Update an existing transaction
     @PutMapping("/{id}")
-    public ResponseEntity<TransactionDTO> updateTransaction(@PathVariable Long id, @RequestBody TransactionDTO transactionDetails) {
+    public ResponseEntity<TransactionDTO> updateTransaction(@PathVariable Long id,
+            @RequestBody TransactionDTO transactionDetails) {
         Optional<Transaction> optionalTransaction = transactionService.getTransactionById(id);
 
         if (optionalTransaction.isPresent()) {
@@ -75,4 +78,16 @@ public class TransactionRestController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
+
+    // GET: Get sales report for a specific event
+    @GetMapping("/report/event/{eventId}")
+    public ResponseEntity<List<TransactionDTO>> getReportByEvent(@PathVariable Long eventId) {
+        try {
+            List<TransactionDTO> transactions = transactionService.getTransactionsByEventId(eventId);
+            return ResponseEntity.ok(transactions);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
 }

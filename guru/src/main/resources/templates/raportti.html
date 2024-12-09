@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tapahtuman Raportti</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            loadEvents();
+        });
+
+        async function loadEvents() {
+            try {
+                const response = await fetch('/api/events');
+                const events = await response.json();
+                const eventSelect = document.getElementById('eventSelect');
+
+                events.forEach(event => {
+                    const option = document.createElement('option');
+                    option.value = event.eventId;
+                    option.text = event.eventName;
+                    eventSelect.add(option);
+                });
+            } catch (error) {
+                console.error('Error loading events:', error);
+            }
+        }
+
+        async function loadEventReport() {
+            const eventId = document.getElementById('eventSelect').value;
+            if (!eventId) {
+                document.getElementById('eventReportSection').style.display = 'none';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/transactions/report/event/${eventId}`);
+                const transactions = await response.json();
+                const reportBody = document.getElementById('eventReportBody');
+
+                reportBody.innerHTML = ''; // Clear previous content
+
+                let totalSum = 0;
+                let totalTickets = 0;
+
+                transactions.forEach(transaction => {
+                    totalSum += transaction.totalSum;
+                    totalTickets += transaction.tickets.length;
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${transaction.transactionId}</td>
+                        <td>${new Date(transaction.transactionDate).toLocaleString()}</td>
+                        <td>${transaction.totalSum.toFixed(2)} €</td>
+                        <td>${transaction.tickets.length}</td>
+                    `;
+                    reportBody.appendChild(row);
+                });
+
+                // Add summary row
+                const summaryRow = document.createElement('tr');
+                summaryRow.innerHTML = `
+                    <td><strong>Yhteensä</strong></td>
+                    <td></td>
+                    <td><strong>${totalSum.toFixed(2)} €</strong></td>
+                    <td><strong>${totalTickets}</strong></td>
+                `;
+                reportBody.appendChild(summaryRow);
+
+                document.getElementById('eventReportSection').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading event report:', error);
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="/myynticlient" class="nav-link">Myynti</a>
+            <a href="/editevent" class="nav-link">Tapahtumat</a>
+            <a href="/raportti" class="nav-link">Raportti</a>
+            <a href="/logout" class="nav-link logout-link">Kirjaudu ulos</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Tapahtuman Raportti</h1>
+
+        <label for="eventSelect">Valitse tapahtuma:</label>
+        <select id="eventSelect" onchange="loadEventReport()">
+            <option value="">Valitse tapahtuma</option>
+        </select>
+
+        <div id="eventReportSection" style="display: none;">
+            <h2>Myyntiraportti</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Myyntitapahtuma</th>
+                        <th>Päivämäärä</th>
+                        <th>Kokonaissumma</th>
+                        <th>Lippujen määrä</th>
+                    </tr>
+                </thead>
+                <tbody id="eventReportBody"></tbody>
+            </table>
+        </div>
+    </div>
+</body>
+
+</html>
