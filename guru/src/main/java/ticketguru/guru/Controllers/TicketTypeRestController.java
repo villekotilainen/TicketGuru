@@ -26,11 +26,12 @@ public class TicketTypeRestController {
     @GetMapping("/event/{eventId}")
     public List<TicketType> getTicketTypesByEventId(@PathVariable Long eventId) {
         return ticketTypeRepository.findByEventEventId(eventId);
-    }    
+    }
 
     // PUT: Päivitä olemassa oleva lipputyyppi
     @PutMapping("/{id}")
-    public ResponseEntity<TicketType> updateTicketType(@PathVariable Long id, @RequestBody TicketType ticketTypeDetails) {
+    public ResponseEntity<TicketType> updateTicketType(@PathVariable Long id,
+            @RequestBody TicketType ticketTypeDetails) {
         Optional<TicketType> optionalTicketType = ticketTypeRepository.findById(id);
         if (!optionalTicketType.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -43,5 +44,12 @@ public class TicketTypeRestController {
 
         return ResponseEntity.ok(ticketType);
     }
-    
+
+    @GetMapping("/{id}/remaining")
+    public ResponseEntity<?> getRemainingTickets(@PathVariable Long id) {
+        TicketType ticketType = ticketTypeRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid TicketType ID"));
+        return ResponseEntity.ok(ticketType.getRemainingCount());
+    }
+
 }

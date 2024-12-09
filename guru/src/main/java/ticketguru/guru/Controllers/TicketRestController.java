@@ -30,11 +30,14 @@ import ticketguru.guru.Repositories.TGUserRepository;
 import ticketguru.guru.Repositories.TicketRepository;
 import ticketguru.guru.Repositories.TicketTypeRepository;
 import ticketguru.guru.Repositories.TransactionRepository;
+import ticketguru.guru.Services.TicketService;
 
 @RestController
 @RequestMapping("/api/tickets") // Base path for tickets-related requests
 @Validated
 public class TicketRestController {
+
+    private TicketService ticketService;
 
     @Autowired
     private TicketTypeRepository ticketTypeRepository;
@@ -200,4 +203,14 @@ public ResponseEntity<?> createTicketsWithTransaction(
 
         return ResponseEntity.status(HttpStatus.CREATED).body(savedTickets);
     }
+    @PostMapping("/buy")
+public ResponseEntity<?> buyTickets(@RequestParam Long ticketTypeId, @RequestParam int quantity) {
+    try {
+        ticketService.processSale(ticketTypeId, quantity);
+        return ResponseEntity.ok("Tickets purchased successfully.");
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+}
+
 }

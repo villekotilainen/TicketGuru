@@ -97,6 +97,15 @@ public class TicketType {
         this.event = event;
     }
 
+    public Integer getRemainingCount() {
+        return totalCount - (tickets != null ? tickets.size() : 0);
+    }
+    
+    public boolean hasSufficientTickets(int requestedCount) {
+        return getRemainingCount() >= requestedCount;
+    }
+    
+
     @Override
     public String toString() {
         return "TicketType [ticketTypeId=" + ticketTypeId + ", ticketPrice=" + ticketPrice + ", typeName=" + typeName
