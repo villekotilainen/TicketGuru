@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.persistence.EntityNotFoundException;
 import ticketguru.guru.Entities.Event;
 import ticketguru.guru.Entities.TicketType;
 import ticketguru.guru.Entities.Venue;
@@ -15,8 +14,6 @@ import ticketguru.guru.Repositories.EventRepository;
 import ticketguru.guru.Repositories.TicketTypeRepository;
 import ticketguru.guru.Repositories.VenueRepository;
 import ticketguru.guru.Services.EventService;
-import ticketguru.guru.dto.EventDTO;
-import ticketguru.guru.Exceptions.EventNotFoundException;
 
 @RestController
 @RequestMapping("/api/events")

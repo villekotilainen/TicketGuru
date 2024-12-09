@@ -1,6 +1,5 @@
 package ticketguru.guru;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import org.slf4j.Logger;
@@ -13,7 +12,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import ticketguru.guru.Entities.Event;
 import ticketguru.guru.Entities.TGUser;
-import ticketguru.guru.Entities.Ticket;
 import ticketguru.guru.Entities.TicketType;
 import ticketguru.guru.Entities.Transaction;
 import ticketguru.guru.Entities.Userrole;
