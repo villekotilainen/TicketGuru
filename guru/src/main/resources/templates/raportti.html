@@ -38,42 +38,74 @@
             try {
                 const response = await fetch(`/api/transactions/report/event/${eventId}`);
                 const transactions = await response.json();
-                const reportBody = document.getElementById('eventReportBody');
 
-                reportBody.innerHTML = ''; // Clear previous content
-
+                const ticketTypeSummary = {};
                 let totalSum = 0;
                 let totalTickets = 0;
 
+                const reportBody = document.getElementById('eventReportBody');
+                const ticketTypeBody = document.getElementById('ticketTypeBody');
+                reportBody.innerHTML = ''; // Clear previous content
+                ticketTypeBody.innerHTML = ''; // Clear previous ticket type summary
+
+                // Process each transaction
                 transactions.forEach(transaction => {
                     totalSum += transaction.totalSum;
                     totalTickets += transaction.tickets.length;
 
+                    // Summarize ticket types
+                    transaction.tickets.forEach(ticket => {
+                        if (!ticketTypeSummary[ticket.type]) {
+                            ticketTypeSummary[ticket.type] = { count: 0, total: 0 };
+                        }
+                        ticketTypeSummary[ticket.type].count++;
+                        ticketTypeSummary[ticket.type].total += ticket.price;
+                    });
+
+                    // Add transaction row
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td>${transaction.transactionId}</td>
                         <td>${new Date(transaction.transactionDate).toLocaleString()}</td>
+                        <td>${transaction.transactionId}</td>
                         <td>${transaction.totalSum.toFixed(2)} €</td>
-                        <td>${transaction.tickets.length}</td>
+                        <td>
+                            <button onclick="viewTransactionDetails(${transaction.transactionId})">Näytä</button>
+                        </td>
                     `;
                     reportBody.appendChild(row);
                 });
 
-                // Add summary row
+                // Display ticket type summary
+                for (const [type, data] of Object.entries(ticketTypeSummary)) {
+                    const typeRow = document.createElement('tr');
+                    typeRow.innerHTML = `
+                        <td>${type}</td>
+                        <td>${data.count}</td>
+                        <td>${data.total.toFixed(2)} €</td>
+                    `;
+                    ticketTypeBody.appendChild(typeRow);
+                }
+
+                // Add summary row for total sales
                 const summaryRow = document.createElement('tr');
                 summaryRow.innerHTML = `
                     <td><strong>Yhteensä</strong></td>
-                    <td></td>
-                    <td><strong>${totalSum.toFixed(2)} €</strong></td>
                     <td><strong>${totalTickets}</strong></td>
+                    <td><strong>${totalSum.toFixed(2)} €</strong></td>
                 `;
-                reportBody.appendChild(summaryRow);
+                ticketTypeBody.appendChild(summaryRow);
 
                 document.getElementById('eventReportSection').style.display = 'block';
             } catch (error) {
                 console.error('Error loading event report:', error);
             }
         }
+
+        function viewTransactionDetails(transactionId) {
+            // Placeholder function for viewing individual transaction details.
+            alert(`Näytä tapahtuma ${transactionId}`);
+        }
+
     </script>
 </head>
 
@@ -97,18 +129,34 @@
 
         <div id="eventReportSection" style="display: none;">
             <h2>Myyntiraportti</h2>
+        
+            <!-- Sales by Ticket Type Table -->
+            <h3>Myynti Lipputyypin Mukaan</h3>
             <table>
                 <thead>
                     <tr>
-                        <th>Myyntitapahtuma</th>
-                        <th>Päivämäärä</th>
-                        <th>Kokonaissumma</th>
-                        <th>Lippujen määrä</th>
+                        <th>Lipputyyppi</th>
+                        <th>Kpl</th>
+                        <th>Yhteensä</th>
+                    </tr>
+                </thead>
+                <tbody id="ticketTypeBody"></tbody>
+            </table>
+        
+            <!-- Detailed Transactions Table -->
+            <h3>Myyntitapahtumat</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Aika</th>
+                        <th>#</th>
+                        <th>Summa</th>
+                        <th>Toiminnot</th>
                     </tr>
                 </thead>
                 <tbody id="eventReportBody"></tbody>
             </table>
-        </div>
+        </div>        
     </div>
 </body>
 
