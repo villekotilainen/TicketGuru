@@ -80,7 +80,7 @@
         // Add summary row for total sales
         const summaryRow = document.createElement('tr');
         summaryRow.innerHTML = `
-            <td><strong>${totalTickets}</strong></td>
+            <td><strong>${Math.floor(totalTickets / 2)}</strong></td>
             <td><strong>${totalSum.toFixed(2)} €</strong></td>
         `;
         salesSummaryBody.appendChild(summaryRow);
