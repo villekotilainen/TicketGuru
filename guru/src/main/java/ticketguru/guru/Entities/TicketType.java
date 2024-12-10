@@ -102,7 +102,7 @@ public class TicketType {
     }
     
     public boolean hasSufficientTickets(int requestedCount) {
-        return getRemainingCount() >= requestedCount;
+        return totalCount >= requestedCount;
     }
     
 

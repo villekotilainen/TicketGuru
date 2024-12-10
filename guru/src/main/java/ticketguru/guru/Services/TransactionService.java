@@ -39,59 +39,58 @@ public class TransactionService {
     private TGUserRepository tgUserRepository;
 
     @Transactional
-    public Transaction createTransactionWithTickets(List<Long> ticketTypeIds, Long userId) {
-        TGUser user = tgUserRepository.findById(userId)
-            .orElseThrow(() -> new IllegalArgumentException("Invalid user ID"));
-    
-        // Group ticketTypeIds by their counts
-        Map<Long, Long> ticketTypeCountMap = ticketTypeIds.stream()
-            .collect(Collectors.groupingBy(id -> id, Collectors.counting()));
-    
-        List<Ticket> tickets = new ArrayList<>();
-    
-        // Process each TicketType
-        for (Map.Entry<Long, Long> entry : ticketTypeCountMap.entrySet()) {
-            Long ticketTypeId = entry.getKey();
-            Long requestedCount = entry.getValue();
-    
-            TicketType ticketType = ticketTypeRepository.findById(ticketTypeId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid ticket type ID: " + ticketTypeId));
-    
-            // Check if there are enough tickets available
+public Transaction createTransactionWithTickets(List<Long> ticketTypeIds, Long userId) {
+    TGUser user = tgUserRepository.findById(userId)
+        .orElseThrow(() -> new IllegalArgumentException("Invalid user ID"));
+
+    // Group ticketTypeIds by their counts
+    Map<Long, Long> ticketTypeCountMap = ticketTypeIds.stream()
+        .collect(Collectors.groupingBy(id -> id, Collectors.counting()));
+
+    List<Ticket> tickets = new ArrayList<>();
+
+    for (Map.Entry<Long, Long> entry : ticketTypeCountMap.entrySet()) {
+        Long ticketTypeId = entry.getKey();
+        Long requestedCount = entry.getValue();
+
+        TicketType ticketType = ticketTypeRepository.findById(ticketTypeId)
+            .orElseThrow(() -> new IllegalArgumentException("Invalid ticket type ID: " + ticketTypeId));
+
+        // Synchronized block for atomic decrement
+        synchronized (ticketType) {
             if (!ticketType.hasSufficientTickets(requestedCount.intValue())) {
                 throw new IllegalStateException("Not enough tickets available for ticket type ID: " + ticketTypeId);
             }
-    
-            // **Decrement totalCount ONLY ONCE for this TicketType**
+
+            // Deduct from totalCount directly
             ticketType.setTotalCount(ticketType.getTotalCount() - requestedCount.intValue());
             ticketTypeRepository.save(ticketType);
-    
-            // Create the requested number of tickets for this type
-            for (int i = 0; i < requestedCount; i++) {
-                Ticket ticket = new Ticket();
-                ticket.setHashcode(UUID.randomUUID().toString());
-                ticket.setTicketType(ticketType);
-                tickets.add(ticket);
-            }
         }
-    
-        // Calculate total sum
-        double totalSum = tickets.stream()
-            .mapToDouble(ticket -> ticket.getTicketType().getTicketPrice())
-            .sum();
-    
-        // Create and save the transaction
-        Transaction transaction = new Transaction(totalSum, user);
-        Transaction savedTransaction = transactionRepository.save(transaction);
-    
-        // Link tickets to the transaction
-        tickets.forEach(ticket -> ticket.setTransaction(savedTransaction));
-        ticketRepository.saveAll(tickets);
-    
-        // Set tickets in the transaction
-        savedTransaction.setTickets(new ArrayList<>(tickets));
-        return savedTransaction;
+
+        // Create tickets
+        for (int i = 0; i < requestedCount; i++) {
+            Ticket ticket = new Ticket();
+            ticket.setHashcode(UUID.randomUUID().toString());
+            ticket.setTicketType(ticketType);
+            tickets.add(ticket);
+        }
     }
+
+    // Calculate total sum
+    double totalSum = tickets.stream()
+        .mapToDouble(ticket -> ticket.getTicketType().getTicketPrice())
+        .sum();
+
+    // Create and save the transaction
+    Transaction transaction = new Transaction(totalSum, user);
+    Transaction savedTransaction = transactionRepository.save(transaction);
+
+    // Link tickets to the transaction
+    tickets.forEach(ticket -> ticket.setTransaction(savedTransaction));
+    ticketRepository.saveAll(tickets);
+
+    return savedTransaction;
+}
 
     public Optional<Transaction> getTransactionById(Long id) {
         return transactionRepository.findById(id);

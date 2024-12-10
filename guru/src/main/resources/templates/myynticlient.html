@@ -101,122 +101,121 @@
         }
 
         async function loadTicketTypes() {
-    const eventId = document.getElementById('event').value;
-    if (!eventId) return;
+            const eventId = document.getElementById('event').value;
+            if (!eventId) return;
 
-    try {
-        const response = await fetch(`/api/tickettypes/event/${eventId}`);
-        const ticketTypes = await response.json();
-        const ticketTypesContainer = document.getElementById('ticketTypesContainer');
+            try {
+                const response = await fetch(`/api/tickettypes/event/${eventId}`);
+                const ticketTypes = await response.json();
+                const ticketTypesContainer = document.getElementById('ticketTypesContainer');
 
-        ticketTypesContainer.innerHTML = '';
+                ticketTypesContainer.innerHTML = '';
 
-        ticketTypes.forEach(ticketType => {
-            const div = document.createElement('div');
-            div.innerHTML = `
-                <label>${ticketType.typeName} (${ticketType.ticketPrice} € - Saatavilla: ${ticketType.remainingCount}):</label>
-                <input type="number" id="ticketType_${ticketType.ticketTypeId}" name="ticketType_${ticketType.ticketTypeId}" min="0" max="${ticketType.remainingCount}" value="0" onchange="updateTotalAmount()">
+                ticketTypes.forEach(ticketType => {
+                    const div = document.createElement('div');
+                    div.innerHTML = `
+                <label>${ticketType.typeName} (${ticketType.ticketPrice} € - Saatavilla: ${ticketType.totalCount}):</label>
+                <input type="number" id="ticketType_${ticketType.ticketTypeId}" name="ticketType_${ticketType.ticketTypeId}" min="0" max="${ticketType.totalCount}" value="0" onchange="updateTotalAmount()">
                 <br><br>
             `;
-            ticketTypesContainer.appendChild(div);
-        });
+                    ticketTypesContainer.appendChild(div);
+                });
 
-        document.getElementById('ticketTypesSection').style.display = 'block';
-    } catch (error) {
-        console.error('Error loading ticket types:', error);
-    }
-}
-
-
-function updateTotalAmount() {
-    const ticketTypesContainer = document.getElementById('ticketTypesContainer');
-    const inputs = ticketTypesContainer.getElementsByTagName('input');
-    let totalAmount = 0;
-
-    for (let input of inputs) {
-        const ticketTypeId = input.id.split('_')[1];
-        const quantity = parseInt(input.value, 10);
-        const max = parseInt(input.getAttribute('max'), 10);
-
-        // Check for invalid input
-        if (quantity > max) {
-            alert(`Requested quantity for a ticket type exceeds availability (max: ${max}).`);
-            input.value = max; // Reset the input to the max value
-            return;
-        }
-
-        if (quantity > 0) {
-            const priceText = input.previousElementSibling.textContent.match(/\(([\d.,]+) €/);
-            if (priceText && priceText[1]) {
-                const price = parseFloat(priceText[1].replace(',', '.'));
-                totalAmount += price * quantity;
+                document.getElementById('ticketTypesSection').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading ticket types:', error);
             }
         }
-    }
-
-    document.getElementById('totalAmount').textContent = totalAmount.toFixed(2);
-}
 
 
-        async function createTicket() {
-    try {
-        const userResponse = await fetch('/api/users/me');
-        if (!userResponse.ok) throw new Error('Failed to fetch logged-in user info');
-        const user = await userResponse.json();
-        const userId = user.userId;
+        function updateTotalAmount() {
+            const ticketTypesContainer = document.getElementById('ticketTypesContainer');
+            const inputs = ticketTypesContainer.getElementsByTagName('input');
+            let totalAmount = 0;
 
-        const transactionId = await createTransaction(userId);
-        const ticketTypesContainer = document.getElementById('ticketTypesContainer');
-        const inputs = ticketTypesContainer.getElementsByTagName('input');
+            for (let input of inputs) {
+                const ticketTypeId = input.id.split('_')[1];
+                const quantity = parseInt(input.value, 10);
+                const max = parseInt(input.getAttribute('max'), 10);
 
-        const tickets = [];
-        for (let input of inputs) {
-            const ticketTypeId = input.id.split('_')[1];
-            const quantity = parseInt(input.value, 10);
-            const max = parseInt(input.getAttribute('max'), 10);
+                // Check for invalid input
+                if (quantity > max) {
+                    alert(`Requested quantity for a ticket type exceeds availability (max: ${max}).`);
+                    input.value = max; // Reset the input to the max value
+                    return;
+                }
 
-            // Validate quantity against remaining count
-            if (quantity > max) {
-                alert(`Requested quantity for ticket type exceeds availability (max: ${max}).`);
-                return;
-            }
-
-            if (quantity > 0) {
-                for (let i = 0; i < quantity; i++) {
-                    tickets.push({
-                        ticketType: { ticketTypeId: parseInt(ticketTypeId, 10) },
-                        transaction: { transactionId: transactionId },
-                    });
+                if (quantity > 0) {
+                    const priceText = input.previousElementSibling.textContent.match(/\(([\d.,]+) €/);
+                    if (priceText && priceText[1]) {
+                        const price = parseFloat(priceText[1].replace(',', '.'));
+                        totalAmount += price * quantity;
+                    }
                 }
             }
+
+            document.getElementById('totalAmount').textContent = totalAmount.toFixed(2);
         }
 
-        if (tickets.length === 0) {
-            alert('Please select at least one ticket.');
-            return;
-        }
+        async function createTicket() {
+            try {
+                const userResponse = await fetch('/api/users/me');
+                if (!userResponse.ok) throw new Error('Failed to fetch logged-in user info');
+                const user = await userResponse.json();
+                const userId = user.userId;
 
-        const response = await fetch(`/api/tickets/transaction?transactionId=${transactionId}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(tickets),
-        });
+                const transactionId = await createTransaction(userId);
+                const ticketTypesContainer = document.getElementById('ticketTypesContainer');
+                const inputs = ticketTypesContainer.getElementsByTagName('input');
 
-        if (response.ok) {
-            const result = await response.json();
-            alert('Tickets successfully purchased!');
-            loadTicketTypes(); // Refresh ticket availability
-            displaySoldTickets(result);
-        } else {
-            const error = await response.json();
-            console.error('Error:', error);
-            alert('Failed to create tickets: ' + (error.message || 'Unknown error occurred.'));
+                const tickets = [];
+                for (let input of inputs) {
+                    const ticketTypeId = input.id.split('_')[1];
+                    const quantity = parseInt(input.value, 10);
+                    const max = parseInt(input.getAttribute('max'), 10);
+
+                    // Validate quantity against remaining count
+                    if (quantity > max) {
+                        alert(`Requested quantity for ticket type exceeds availability (max: ${max}).`);
+                        return;
+                    }
+
+                    if (quantity > 0) {
+                        for (let i = 0; i < quantity; i++) {
+                            tickets.push({
+                                ticketType: { ticketTypeId: parseInt(ticketTypeId, 10) },
+                                transaction: { transactionId: transactionId },
+                            });
+                        }
+                    }
+                }
+
+                if (tickets.length === 0) {
+                    alert('Please select at least one ticket.');
+                    return;
+                }
+
+                const response = await fetch(`/api/tickets/transaction?transactionId=${transactionId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(tickets),
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    alert('Tickets successfully purchased!');
+                    loadTicketTypes(); // Refresh ticket availability
+                    displaySoldTickets(result);
+                } else {
+                    const error = await response.json();
+                    console.error('Error:', error);
+                    alert('Failed to create tickets: ' + (error.message || 'Unknown error occurred.'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to create tickets.');
+            }
         }
-    } catch (error) {
-        console.error('Error:', error);
-        alert('Failed to create tickets.');
-    }
-}
 
 
         async function createTransaction(userId) {
