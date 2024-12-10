@@ -118,62 +118,64 @@ public class TicketRestController {
         }
     }
 
-  // POST: Create Tickets for a Transaction
-@CrossOrigin(origins = "*")
-@Transactional
-@PostMapping("/transaction")
-public ResponseEntity<?> createTicketsWithTransaction(
-        @RequestBody List<Ticket> tickets,
-        @RequestParam Long transactionId) {
+    // POST: Create Tickets for a Transaction
+    @CrossOrigin(origins = "*")
+    @Transactional
+    @PostMapping("/transaction")
+    public ResponseEntity<?> createTicketsWithTransaction(
+            @RequestBody List<Ticket> tickets,
+            @RequestParam Long transactionId) {
 
-    try {
-        // Validate if the transaction exists
-        Optional<Transaction> transactionOptional = transactionRepository.findById(transactionId);
-        if (transactionOptional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                 .body("Transaction ID is invalid or does not exist.");
-        }
-
-        Transaction transaction = transactionOptional.get();
-
-        // Validate tickets list
-        if (tickets == null || tickets.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                 .body("Ticket list cannot be empty.");
-        }
-
-        // Associate tickets with the transaction and set required fields
-        for (Ticket ticket : tickets) {
-            if (ticket.getTicketType() == null || ticket.getTicketType().getTicketTypeId() == null) {
+        try {
+            // Validate if the transaction exists
+            Optional<Transaction> transactionOptional = transactionRepository.findById(transactionId);
+            if (transactionOptional.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                     .body("Each ticket must have a valid TicketType.");
+                        .body("Transaction ID is invalid or does not exist.");
             }
 
-            // Check if the ticket type exists
-            TicketType ticketType = ticketTypeRepository.findById(ticket.getTicketType().getTicketTypeId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid TicketType ID: " + ticket.getTicketType().getTicketTypeId()));
+            Transaction transaction = transactionOptional.get();
 
-            // Set valid TicketType and Transaction
-            ticket.setTicketType(ticketType);
-            ticket.setTransaction(transaction);
-
-            // Generate a unique hashcode for the ticket if not already set
-            if (ticket.getHashcode() == null || ticket.getHashcode().isEmpty()) {
-                ticket.setHashcode(UUID.randomUUID().toString());
+            // Validate tickets list
+            if (tickets == null || tickets.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("Ticket list cannot be empty.");
             }
+
+            // Associate tickets with the transaction and set required fields
+            for (Ticket ticket : tickets) {
+                if (ticket.getTicketType() == null || ticket.getTicketType().getTicketTypeId() == null) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body("Each ticket must have a valid TicketType.");
+                }
+
+                // Check if the ticket type exists
+                TicketType ticketType = ticketTypeRepository.findById(ticket.getTicketType().getTicketTypeId())
+                        .orElseThrow(() -> new IllegalArgumentException(
+                                "Invalid TicketType ID: " + ticket.getTicketType().getTicketTypeId()));
+
+                // Set valid TicketType and Transaction
+                ticket.setTicketType(ticketType);
+                ticket.setTransaction(transaction);
+
+                // Generate a unique hashcode for the ticket if not already set
+                if (ticket.getHashcode() == null || ticket.getHashcode().isEmpty()) {
+                    ticket.setHashcode(UUID.randomUUID().toString());
+                }
+            }
+
+            // Save tickets
+            List<Ticket> savedTickets = ticketRepository.saveAll(tickets);
+
+            // Return the saved tickets
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedTickets);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error occurred while creating tickets: " + e.getMessage());
         }
-
-        // Save tickets
-        List<Ticket> savedTickets = ticketRepository.saveAll(tickets);
-
-        // Return the saved tickets
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedTickets);
-    } catch (Exception e) {
-        e.printStackTrace();
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                             .body("Error occurred while creating tickets: " + e.getMessage());
     }
-}
+
     // POST: Create Tickets with User and Transaction
     @CrossOrigin(origins = "*")
     @PostMapping("/create-with-user")
@@ -203,14 +205,47 @@ public ResponseEntity<?> createTicketsWithTransaction(
 
         return ResponseEntity.status(HttpStatus.CREATED).body(savedTickets);
     }
-    @PostMapping("/buy")
-public ResponseEntity<?> buyTickets(@RequestParam Long ticketTypeId, @RequestParam int quantity) {
-    try {
-        ticketService.processSale(ticketTypeId, quantity);
-        return ResponseEntity.ok("Tickets purchased successfully.");
-    } catch (Exception e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-    }
-}
 
+    @PostMapping("/buy")
+    public ResponseEntity<?> buyTickets(@RequestParam Long ticketTypeId, @RequestParam int quantity) {
+        try {
+            ticketService.processSale(ticketTypeId, quantity);
+            return ResponseEntity.ok("Tickets purchased successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/check/{hashcode}")
+    public ResponseEntity<?> getTicketDetails(@PathVariable String hashcode) {
+        Optional<Ticket> optionalTicket = ticketRepository.findByHashcode(hashcode);
+
+        if (optionalTicket.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Lippua ei löytynyt.");
+        }
+
+        Ticket ticket = optionalTicket.get();
+        return ResponseEntity.ok(ticket);
+    }
+
+    @PutMapping("/use/{hashcode}")
+    public ResponseEntity<?> markTicketAsUsed(@PathVariable String hashcode) {
+        Optional<Ticket> optionalTicket = ticketRepository.findByHashcode(hashcode);
+
+        if (optionalTicket.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Lippua ei löytynyt.");
+        }
+
+        Ticket ticket = optionalTicket.get();
+
+        if (ticket.isUsed()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Lippu on jo käytetty.");
+        }
+
+        ticket.setUsed(true);
+        ticket.setTicketUsedDate(LocalDateTime.now());
+        ticketRepository.save(ticket);
+
+        return ResponseEntity.ok("Lippu merkitty käytetyksi onnistuneesti.");
+    }
 }

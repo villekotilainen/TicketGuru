@@ -46,4 +46,9 @@ public class HomeController {
     public String kayttajat() {
         return "kayttajat";
     }
+
+    @GetMapping("/lipun-tarkastus")
+    public String lipunTarkastus() {
+        return "lipun-tarkastus";
+    }
 }

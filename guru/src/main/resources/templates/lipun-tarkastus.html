@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lipun tarkastus</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+
+<body>
+<div class="container">
+  <nav class="navbar">
+    <div class="navbar-container">
+        <a href="/myynticlient" class="nav-link">Myynti</a>
+        <a href="/lipun-tarkastus" class="nav-link">Lipun tarkastus</a>
+        <a href="/editevent" class="nav-link">Tapahtumat</a>
+        <a href="/raportti" class="nav-link">Raportti</a>
+        <a href="/luo-kayttaja" class="nav-link">Luo Käyttäjä</a>
+        <a href="/logout" class="nav-link logout-link">Kirjaudu ulos</a>
+    </div>
+</nav>
+
+<div class="container">
+  <h1>Lipun tarkastus</h1>
+  <form id="checkTicketForm">
+    <label for="ticketHashcode">Syötä lipun koodi:</label>
+    <input type="text" id="ticketHashcode" placeholder="Lipun hashcode">
+    <button type="button" onclick="checkTicket()">Tarkista</button>
+  </form>
+
+  <div id="ticketDetails" style="display: none;">
+    <h2>Lipun tiedot</h2>
+    <p id="ticketInfo"></p>
+    <button type="button" onclick="useTicket()">Merkitse käytetyksi</button>
+  </div>
+</div>
+
+<script>
+async function checkTicket() {
+  const hashcode = document.getElementById("ticketHashcode").value.trim();
+
+  if (!hashcode) {
+    alert("Syötä lipun koodi.");
+    return;
+  }
+
+  try {
+    const response = await fetch(`/api/tickets/check/${hashcode}`);
+
+    if (!response.ok) {
+      const error = await response.text();
+      alert("Virhe: " + error);
+      return;
+    }
+
+    const ticket = await response.json();
+    document.getElementById("ticketInfo").innerText = `
+      Lipun ID: ${ticket.ticketId}
+      Lipputyyppi: ${ticket.ticketType.typeName}
+      Hinta: ${ticket.ticketType.ticketPrice} €
+      Käytetty: ${ticket.used ? "Kyllä" : "Ei"}
+      Käytetty päivämäärä: ${ticket.ticketUsedDate || "Ei käytetty"}
+    `;
+
+    document.getElementById("ticketDetails").style.display = "block";
+  } catch (error) {
+    console.error("Virhe lipuntarkastuksessa:", error);
+    alert("Lipun tarkastus epäonnistui.");
+  }
+}
+
+async function useTicket() {
+  const hashcode = document.getElementById("ticketHashcode").value.trim();
+
+  if (!hashcode) {
+    alert("Syötä lipun koodi.");
+    return;
+  }
+
+  try {
+    const response = await fetch(`/api/tickets/use/${hashcode}`, {
+      method: "PUT",
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      alert("Virhe: " + error);
+      return;
+    }
+
+    alert(await response.text());
+    await checkTicket(); // Päivitä tiedot
+  } catch (error) {
+    console.error("Virhe lipun merkitsemisessä käytetyksi:", error);
+    alert("Lipun merkitseminen käytetyksi epäonnistui.");
+  }
+}
+</script>
+</body>
+
+</html>
+

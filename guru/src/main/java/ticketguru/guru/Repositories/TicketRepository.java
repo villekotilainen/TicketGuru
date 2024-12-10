@@ -9,6 +9,7 @@ import ticketguru.guru.Entities.TicketType;
 import ticketguru.guru.Entities.Transaction;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
@@ -17,7 +18,7 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
     List<Ticket> findByTransaction(Transaction transaction);
 
-    Ticket findByHashcode(String hashcode);
+    Optional<Ticket> findByHashcode(String hashcode);
 
     boolean existsByTicketType(TicketType ticketType);
 }

@@ -96,10 +96,6 @@ public class TicketType {
     public void setEvent(Event event) {
         this.event = event;
     }
-
-    public Integer getRemainingCount() {
-        return totalCount - (tickets != null ? tickets.size() : 0);
-    }
     
     public boolean hasSufficientTickets(int requestedCount) {
         return totalCount >= requestedCount;

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.springframework.transaction.annotation.Transactional;
 import ticketguru.guru.Entities.TicketType;
 import ticketguru.guru.Repositories.TicketTypeRepository;
 
@@ -30,26 +31,34 @@ public class TicketTypeRestController {
 
     // PUT: Päivitä olemassa oleva lipputyyppi
     @PutMapping("/{id}")
-    public ResponseEntity<TicketType> updateTicketType(@PathVariable Long id,
-            @RequestBody TicketType ticketTypeDetails) {
+    @Transactional
+    public ResponseEntity<?> updateTicketType(@PathVariable Long id, @RequestBody TicketType updatedTicketType) {
         Optional<TicketType> optionalTicketType = ticketTypeRepository.findById(id);
-        if (!optionalTicketType.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
+        if (optionalTicketType.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("TicketType not found");
         }
 
-        TicketType ticketType = optionalTicketType.get();
-        ticketType.setTypeName(ticketTypeDetails.getTypeName());
-        ticketType.setTicketPrice(ticketTypeDetails.getTicketPrice());
-        ticketTypeRepository.save(ticketType);
+        TicketType existingTicketType = optionalTicketType.get();
 
-        return ResponseEntity.ok(ticketType);
+        // Update fields if present in the request
+        if (updatedTicketType.getTypeName() != null) {
+            existingTicketType.setTypeName(updatedTicketType.getTypeName());
+        }
+        if (updatedTicketType.getTicketPrice() != null) {
+            existingTicketType.setTicketPrice(updatedTicketType.getTicketPrice());
+        }
+        if (updatedTicketType.getTotalCount() != null) {
+            existingTicketType.setTotalCount(updatedTicketType.getTotalCount());
+        }
+        if (updatedTicketType.getEvent() != null && updatedTicketType.getEvent().getEventId() != null) {
+            existingTicketType.setEvent(updatedTicketType.getEvent());
+        }
+
+        // Save updated entity
+        TicketType savedTicketType = ticketTypeRepository.save(existingTicketType);
+
+        // Return updated entity
+        return ResponseEntity.ok(savedTicketType);
     }
-
-    @GetMapping("/{id}/remaining")
-    public ResponseEntity<?> getRemainingTickets(@PathVariable Long id) {
-        TicketType ticketType = ticketTypeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid TicketType ID"));
-        return ResponseEntity.ok(ticketType.getRemainingCount());
-    }
-
 }
