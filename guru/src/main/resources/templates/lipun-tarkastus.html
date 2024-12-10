@@ -23,81 +23,138 @@
 
 <div class="container">
   <h1>Lipun tarkastus</h1>
+
   <form id="checkTicketForm">
     <label for="ticketHashcode">Syötä lipun koodi:</label>
     <input type="text" id="ticketHashcode" placeholder="Lipun hashcode">
     <button type="button" onclick="checkTicket()">Tarkista</button>
   </form>
 
+  <div>
+    <h2>QR-koodi tarkastus</h2>
+    <button type="button" onclick="startQrScanner()">Avaa kamera</button>
+    <div id="qrReader" style="width: 300px; height: 300px; display: none;"></div>
+  </div>
+
   <div id="ticketDetails" style="display: none;">
     <h2>Lipun tiedot</h2>
-    <p id="ticketInfo"></p>
+    <div id="ticketInfo"></div>
     <button type="button" onclick="useTicket()">Merkitse käytetyksi</button>
+    <button type="button" onclick="resetForm()">Uusi lippu</button>
   </div>
 </div>
 
+<script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
 <script>
-async function checkTicket() {
-  const hashcode = document.getElementById("ticketHashcode").value.trim();
-
-  if (!hashcode) {
-    alert("Syötä lipun koodi.");
-    return;
+  function formatDate(dateString) {
+    if (!dateString) return "Ei käytetty";
+    const date = new Date(dateString);
+    return date.toLocaleString('fi-FI', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    }).replace(',', ' klo');
   }
 
-  try {
-    const response = await fetch(`/api/tickets/check/${hashcode}`);
+  async function checkTicket() {
+    const hashcode = document.getElementById("ticketHashcode").value.trim();
 
-    if (!response.ok) {
-      const error = await response.text();
-      alert("Virhe: " + error);
+    if (!hashcode) {
+      alert("Syötä lipun koodi.");
       return;
     }
 
-    const ticket = await response.json();
-    document.getElementById("ticketInfo").innerText = `
-      Lipun ID: ${ticket.ticketId}
-      Lipputyyppi: ${ticket.ticketType.typeName}
-      Hinta: ${ticket.ticketType.ticketPrice} €
-      Käytetty: ${ticket.used ? "Kyllä" : "Ei"}
-      Käytetty päivämäärä: ${ticket.ticketUsedDate || "Ei käytetty"}
-    `;
+    try {
+      const response = await fetch(`/api/tickets/check/${hashcode}`);
 
-    document.getElementById("ticketDetails").style.display = "block";
-  } catch (error) {
-    console.error("Virhe lipuntarkastuksessa:", error);
-    alert("Lipun tarkastus epäonnistui.");
+      if (!response.ok) {
+        const error = await response.text();
+        alert("Virhe: " + error);
+        return;
+      }
+
+      const ticket = await response.json();
+      document.getElementById("ticketInfo").innerHTML = `
+        <p>Lipun ID: ${ticket.ticketId}</p>
+        <p>Lipputyyppi: ${ticket.ticketType.typeName}</p>
+        <p>Hinta: ${ticket.ticketType.ticketPrice} €</p>
+        <p>Käytetty: ${ticket.used ? "Kyllä" : "Ei"}</p>
+        <p>Käytetty päivämäärä: ${formatDate(ticket.ticketUsedDate)}</p>
+      `;
+
+      document.getElementById("ticketDetails").style.display = "block";
+    } catch (error) {
+      console.error("Virhe lipuntarkastuksessa:", error);
+      alert("Lipun tarkastus epäonnistui.");
+    }
   }
-}
 
-async function useTicket() {
-  const hashcode = document.getElementById("ticketHashcode").value.trim();
+  async function useTicket() {
+    const hashcode = document.getElementById("ticketHashcode").value.trim();
 
-  if (!hashcode) {
-    alert("Syötä lipun koodi.");
-    return;
+    if (!hashcode) {
+      alert("Syötä lipun koodi.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/tickets/use/${hashcode}`, {
+        method: "PUT",
+      });
+
+      if (!response.ok) {
+        const error = await response.text();
+        alert("Virhe: " + error);
+        return;
+      }
+
+      alert(await response.text());
+      await checkTicket(); // Päivitä tiedot
+    } catch (error) {
+      console.error("Virhe lipun merkitsemisessä käytetyksi:", error);
+      alert("Lipun merkitseminen käytetyksi epäonnistui.");
+    }
   }
 
-  try {
-    const response = await fetch(`/api/tickets/use/${hashcode}`, {
-      method: "PUT",
+  function startQrScanner() {
+    const qrReaderDiv = document.getElementById("qrReader");
+    qrReaderDiv.style.display = "block";
+
+    const html5QrCode = new Html5Qrcode("qrReader");
+
+    html5QrCode.start(
+      { facingMode: "environment" }, // Käytä takakameraa
+      {
+        fps: 10,
+        qrbox: { width: 250, height: 250 },
+      },
+      async (decodedText) => {
+        console.log("QR Code skannattu:", decodedText);
+        document.getElementById("ticketHashcode").value = decodedText;
+        await checkTicket();
+        html5QrCode.stop();
+        qrReaderDiv.style.display = "none";
+      },
+      (error) => {
+        console.warn("QR Code virhe:", error);
+      }
+    ).catch((err) => {
+      console.error("Kameran avaaminen epäonnistui:", err);
+      alert("Kameran avaaminen epäonnistui.");
     });
-
-    if (!response.ok) {
-      const error = await response.text();
-      alert("Virhe: " + error);
-      return;
-    }
-
-    alert(await response.text());
-    await checkTicket(); // Päivitä tiedot
-  } catch (error) {
-    console.error("Virhe lipun merkitsemisessä käytetyksi:", error);
-    alert("Lipun merkitseminen käytetyksi epäonnistui.");
   }
-}
+
+  function resetForm() {
+    document.getElementById("ticketHashcode").value = "";
+    document.getElementById("ticketDetails").style.display = "none";
+    document.getElementById("qrReader").style.display = "none";
+    alert("Valmiina tarkistamaan seuraava lippu.");
+  }
 </script>
+
 </body>
 
 </html>
-
