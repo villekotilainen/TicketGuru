@@ -2,163 +2,150 @@
 <html lang="fi">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tapahtuman Raportti</title>
-    <link rel="stylesheet" href="/styles.css">
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            loadEvents();
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tapahtuman Raportti</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      loadEvents();
+    });
+
+    async function loadEvents() {
+      try {
+        const response = await fetch('/api/events');
+        const events = await response.json();
+        const eventSelect = document.getElementById('eventSelect');
+
+        events.forEach(event => {
+          const option = document.createElement('option');
+          option.value = event.eventId;
+          option.text = event.eventName;
+          eventSelect.add(option);
+        });
+      } catch (error) {
+        console.error('Error loading events:', error);
+      }
+    }
+
+    async function loadEventReport() {
+      const eventId = document.getElementById('eventSelect').value;
+      if (!eventId) {
+        document.getElementById('eventReportSection').style.display = 'none';
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/transactions/report/event/${eventId}`);
+        const transactions = await response.json();
+
+        let totalSum = 0;
+        let totalTickets = 0;
+
+        const reportBody = document.getElementById('eventReportBody');
+        const salesSummaryBody = document.getElementById('salesSummaryBody');
+        reportBody.innerHTML = ''; // Clear previous content
+        salesSummaryBody.innerHTML = ''; // Clear previous content
+
+        let uniqueTickets = new Set(); // Track unique ticket IDs
+
+        transactions.forEach(transactionWrapper => {
+          if (!transactionWrapper.tickets || transactionWrapper.tickets.length === 0) {
+            console.warn("Incomplete transactionWrapper:", transactionWrapper);
+            return;
+          }
+
+          // Increment totalTickets based on unique tickets
+          transactionWrapper.tickets.forEach(ticket => {
+            if (!uniqueTickets.has(ticket.ticketId)) {
+              uniqueTickets.add(ticket.ticketId);
+            }
+          });
+
+          totalSum += transactionWrapper.totalSum;
+
+          // Add transaction row
+          const row = document.createElement('tr');
+          row.innerHTML = `
+        <td>${transactionWrapper.transactionDate ? new Date(transactionWrapper.transactionDate).toLocaleString() : "Tuntematon"}</td>
+        <td>${transactionWrapper.transactionId || "Tuntematon"}</td>
+        <td>${transactionWrapper.totalSum.toFixed(2)} €</td>
+        <td>${transactionWrapper.userId || "Ei tiedossa"}</td>
+    `;
+          reportBody.appendChild(row);
         });
 
-        async function loadEvents() {
-            try {
-                const response = await fetch('/api/events');
-                const events = await response.json();
-                const eventSelect = document.getElementById('eventSelect');
+        // Set the correct totalTickets count
+        totalTickets = uniqueTickets.size;
+        // Add summary row for total sales
+        const summaryRow = document.createElement('tr');
+        summaryRow.innerHTML = `
+            <td><strong>${totalTickets}</strong></td>
+            <td><strong>${totalSum.toFixed(2)} €</strong></td>
+        `;
+        salesSummaryBody.appendChild(summaryRow);
 
-                events.forEach(event => {
-                    const option = document.createElement('option');
-                    option.value = event.eventId;
-                    option.text = event.eventName;
-                    eventSelect.add(option);
-                });
-            } catch (error) {
-                console.error('Error loading events:', error);
-            }
-        }
+        document.getElementById('eventReportSection').style.display = 'block';
+      } catch (error) {
+        console.error('Error loading event report:', error);
+      }
+    }
 
-        async function loadEventReport() {
-            const eventId = document.getElementById('eventSelect').value;
-            if (!eventId) {
-                document.getElementById('eventReportSection').style.display = 'none';
-                return;
-            }
 
-            try {
-                const response = await fetch(`/api/transactions/report/event/${eventId}`);
-                const transactions = await response.json();
 
-                const ticketTypeSummary = {};
-                let totalSum = 0;
-                let totalTickets = 0;
-
-                const reportBody = document.getElementById('eventReportBody');
-                const ticketTypeBody = document.getElementById('ticketTypeBody');
-                reportBody.innerHTML = ''; // Clear previous content
-                ticketTypeBody.innerHTML = ''; // Clear previous ticket type summary
-
-                // Process each transaction
-                transactions.forEach(transaction => {
-                    totalSum += transaction.totalSum;
-                    totalTickets += transaction.tickets.length;
-
-                    // Summarize ticket types
-                    transaction.tickets.forEach(ticket => {
-                        if (!ticketTypeSummary[ticket.type]) {
-                            ticketTypeSummary[ticket.type] = { count: 0, total: 0 };
-                        }
-                        ticketTypeSummary[ticket.type].count++;
-                        ticketTypeSummary[ticket.type].total += ticket.price;
-                    });
-
-                    // Add transaction row
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${new Date(transaction.transactionDate).toLocaleString()}</td>
-                        <td>${transaction.transactionId}</td>
-                        <td>${transaction.totalSum.toFixed(2)} €</td>
-                        <td>
-                            <button onclick="viewTransactionDetails(${transaction.transactionId})">Näytä</button>
-                        </td>
-                    `;
-                    reportBody.appendChild(row);
-                });
-
-                // Display ticket type summary
-                for (const [type, data] of Object.entries(ticketTypeSummary)) {
-                    const typeRow = document.createElement('tr');
-                    typeRow.innerHTML = `
-                        <td>${type}</td>
-                        <td>${data.count}</td>
-                        <td>${data.total.toFixed(2)} €</td>
-                    `;
-                    ticketTypeBody.appendChild(typeRow);
-                }
-
-                // Add summary row for total sales
-                const summaryRow = document.createElement('tr');
-                summaryRow.innerHTML = `
-                    <td><strong>Yhteensä</strong></td>
-                    <td><strong>${totalTickets}</strong></td>
-                    <td><strong>${totalSum.toFixed(2)} €</strong></td>
-                `;
-                ticketTypeBody.appendChild(summaryRow);
-
-                document.getElementById('eventReportSection').style.display = 'block';
-            } catch (error) {
-                console.error('Error loading event report:', error);
-            }
-        }
-
-        function viewTransactionDetails(transactionId) {
-            // Placeholder function for viewing individual transaction details.
-            alert(`Näytä tapahtuma ${transactionId}`);
-        }
-
-    </script>
+  </script>
 </head>
 
 <body>
-    <nav class="navbar">
-        <div class="navbar-container">
-            <a href="/myynticlient" class="nav-link">Myynti</a>
-            <a href="/lipun-tarkastus" class="nav-link">Lipun tarkastus</a>
-            <a href="/editevent" class="nav-link">Tapahtumat</a>
-            <a href="/raportti" class="nav-link">Raportti</a>
-            <a href="/luo-kayttaja" class="nav-link">Luo Käyttäjä</a>
-            <a href="/logout" class="nav-link logout-link">Kirjaudu ulos</a>
-        </div>
-    </nav>
+  <nav class="navbar">
+    <div class="navbar-container">
+      <a href="/myynticlient" class="nav-link">Myynti</a>
+      <a href="/lipun-tarkastus" class="nav-link">Lipun tarkastus</a>
+      <a href="/editevent" class="nav-link">Tapahtumat</a>
+      <a href="/raportti" class="nav-link">Raportti</a>
+      <a href="/luo-kayttaja" class="nav-link">Luo Käyttäjä</a>
+      <a href="/logout" class="nav-link logout-link">Kirjaudu ulos</a>
+    </div>
+  </nav>
 
-    <div class="container">
-        <h1>Tapahtuman Raportti</h1>
+  <div class="container">
+    <h1>Tapahtuman Raportti</h1>
 
-        <label for="eventSelect">Valitse tapahtuma:</label>
-        <select id="eventSelect" onchange="loadEventReport()">
-            <option value="">Valitse tapahtuma</option>
-        </select>
+    <label for="eventSelect">Valitse tapahtuma:</label>
+    <select id="eventSelect" onchange="loadEventReport()">
+      <option value="">Valitse tapahtuma</option>
+    </select>
 
-        <div id="eventReportSection" style="display: none;">
-            <h2>Myyntiraportti</h2>
-        
-            <!-- Sales by Ticket Type Table -->
-            <h3>Myynti Lipputyypin Mukaan</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Lipputyyppi</th>
-                        <th>Kpl</th>
-                        <th>Yhteensä</th>
-                    </tr>
-                </thead>
-                <tbody id="ticketTypeBody"></tbody>
-            </table>
-        
-            <!-- Detailed Transactions Table -->
-            <h3>Myyntitapahtumat</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Aika</th>
-                        <th>#</th>
-                        <th>Summa</th>
-                        <th>Toiminnot</th>
-                    </tr>
-                </thead>
-                <tbody id="eventReportBody"></tbody>
-            </table>
-        </div>        
+    <div id="eventReportSection" style="display: none;">
+      <h2>Myyntiraportti</h2>
+
+      <!-- Sales Summary -->
+      <h3>Myynti Yhteensä</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Kpl</th>
+            <th>Yhteensä</th>
+          </tr>
+        </thead>
+        <tbody id="salesSummaryBody">
+          <!-- This will show only the total summary -->
+        </tbody>
+      </table>
+
+      <!-- Detailed Transactions Table -->
+      <h3>Myyntitapahtumat</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Aika</th>
+            <th>#</th>
+            <th>Summa</th>
+            <th>Myyjän ID</th>
+          </tr>
+        </thead>
+        <tbody id="eventReportBody"></tbody>
+      </table>
     </div>
 </body>
 

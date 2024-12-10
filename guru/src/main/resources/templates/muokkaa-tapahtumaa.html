@@ -99,52 +99,18 @@
     }
 
     function renderTicketTypes() {
-  const ticketList = document.getElementById("ticketTypeList");
-  ticketList.innerHTML = "";
+      const ticketList = document.getElementById("ticketTypeList");
+      ticketList.innerHTML = "";
 
-  ticketTypes.forEach((ticketType, index) => {
-    const li = document.createElement("li");
-    li.innerHTML = `
-      <input type="text" value="${ticketType.typeName}" data-index="${index}" class="ticket-name">
-      <input type="number" value="${ticketType.ticketPrice}" data-index="${index}" class="ticket-price">
-      <input type="number" value="${ticketType.totalCount}" data-index="${index}" class="ticket-total-count">
-      <button type="button" onclick="saveTicketType(${index})">Tallenna</button>
-      <button type="button" onclick="deleteTicketType(${index})">Poista</button>
-    `;
-    ticketList.appendChild(li);
-  });
-}
-async function saveTicketType(index) {
-  const ticketType = { ...ticketTypes[index] };
-
-  // Include the event ID explicitly to avoid nested object issues
-  if (ticketType.event) {
-    ticketType.event = { eventId: ticketType.event.eventId };
-  }
-
-  try {
-    const response = await fetch(`/api/tickettypes/${ticketType.ticketTypeId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(ticketType), // Send updated ticketType object
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to update ticket type");
+      ticketTypes.forEach((ticketType, index) => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <p>${ticketType.typeName} (${ticketType.ticketPrice} €, ${ticketType.totalCount} kpl)</p>
+          <button type="button" onclick="deleteTicketType(${index})">Poista</button>
+        `;
+        ticketList.appendChild(li);
+      });
     }
-
-    const updatedTicketType = await response.json();
-    console.log("Ticket type updated successfully:", updatedTicketType);
-    alert("Lipputyyppi päivitetty onnistuneesti!");
-
-    // Update the local ticketTypes array with the response
-    ticketTypes[index] = updatedTicketType;
-    renderTicketTypes();
-  } catch (error) {
-    console.error("Error saving ticket type:", error);
-    alert("Virhe lipputyypin tallennuksessa.");
-  }
-}
 
     function deleteTicketType(index) {
       ticketTypes.splice(index, 1);
@@ -171,56 +137,48 @@ async function saveTicketType(index) {
     }
 
     document.getElementById("editEventForm").addEventListener("submit", async (event) => {
-  event.preventDefault();
+      event.preventDefault();
 
-  const updatedEvent = {
-    eventId,
-    eventName: document.getElementById("eventName").value.trim(),
-    startTime: document.getElementById("startTime").value,
-    endTime: document.getElementById("endTime").value,
-    eventDescription: document.getElementById("eventDescription").value.trim(),
-    venue: { venueName: document.getElementById("eventVenue").value.trim() },
-  };
+      const updatedEvent = {
+        eventId,
+        eventName: document.getElementById("eventName").value.trim(),
+        startTime: document.getElementById("startTime").value,
+        endTime: document.getElementById("endTime").value,
+        eventDescription: document.getElementById("eventDescription").value.trim(),
+        venue: { venueName: document.getElementById("eventVenue").value.trim() },
+      };
 
-  try {
-    console.log("Updating Event:", updatedEvent);
-    const eventResponse = await fetch(`/api/events/${eventId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(updatedEvent),
-    });
-
-    if (!eventResponse.ok) {
-      throw new Error("Tapahtuman päivitys epäonnistui.");
-    }
-
-    // Tallenna kaikki lipputyypit kerralla
-    for (const ticketType of ticketTypes) {
-      if (ticketType.ticketTypeId) {
-        // Päivitä olemassa oleva lipputyyppi
-        await fetch(`/api/tickettypes/${ticketType.ticketTypeId}`, {
+      try {
+        console.log("Updating Event:", updatedEvent);
+        const eventResponse = await fetch(`/api/events/${eventId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(ticketType),
+          body: JSON.stringify(updatedEvent),
         });
-      } else {
-        // Luo uusi lipputyyppi
-        await fetch(`/api/events/${eventId}/tickettypes`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(ticketType),
-        });
+
+        if (!eventResponse.ok) {
+          throw new Error("Tapahtuman päivitys epäonnistui.");
+        }
+
+        // Save newly created ticket types
+        for (const ticketType of ticketTypes) {
+          if (!ticketType.ticketTypeId) {
+            // Create a new ticket type
+            await fetch(`/api/events/${eventId}/tickettypes`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(ticketType),
+            });
+          }
+        }
+
+        alert("Kaikki muutokset tallennettu onnistuneesti!");
+        window.location.href = "/editevent";
+      } catch (error) {
+        console.error("Error updating event and ticket types:", error);
+        alert("Virhe tallennuksessa. Tarkista tiedot ja yritä uudelleen.");
       }
-    }
-
-    alert("Kaikki muutokset tallennettu onnistuneesti!");
-    window.location.href = "/editevent";
-  } catch (error) {
-    console.error("Error updating event and ticket types:", error);
-    alert("Virhe tallennuksessa. Tarkista tiedot ja yritä uudelleen.");
-  }
-});
-
+    });
   </script>
 </body>
 
