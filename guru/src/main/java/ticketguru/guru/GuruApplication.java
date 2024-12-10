@@ -122,12 +122,7 @@ public class GuruApplication {
             ticketTypeRepository.save(ticketType8);
             ticketTypeRepository.save(ticketType9);
 
-            // Create and save transactions
-            Transaction transaction1 = new Transaction(LocalDateTime.of(2024, 10, 5, 12, 12), 22.90, true, tgUser1);
-            Transaction transaction2 = new Transaction(LocalDateTime.of(2024, 9, 6, 11, 15), 25.20, true, tgUser2);
-            transactionRepository.save(transaction1);
-            transactionRepository.save(transaction2);
-
+           
             log.info("Sample data created successfully.");
         };
     }

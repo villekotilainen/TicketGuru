@@ -1,6 +1,9 @@
 package ticketguru.guru.Services;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -37,39 +40,58 @@ public class TransactionService {
 
     @Transactional
     public Transaction createTransactionWithTickets(List<Long> ticketTypeIds, Long userId) {
-    // Step 1: Validate user
-    TGUser user = tgUserRepository.findById(userId)
+        TGUser user = tgUserRepository.findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("Invalid user ID"));
-
-    // Step 2: Fetch ticket types and create tickets
-    List<Ticket> tickets = ticketTypeIds.stream().map(ticketTypeId -> {
-        TicketType ticketType = ticketTypeRepository.findById(ticketTypeId)
+    
+        // Group ticketTypeIds by their counts
+        Map<Long, Long> ticketTypeCountMap = ticketTypeIds.stream()
+            .collect(Collectors.groupingBy(id -> id, Collectors.counting()));
+    
+        List<Ticket> tickets = new ArrayList<>();
+    
+        // Process each TicketType
+        for (Map.Entry<Long, Long> entry : ticketTypeCountMap.entrySet()) {
+            Long ticketTypeId = entry.getKey();
+            Long requestedCount = entry.getValue();
+    
+            TicketType ticketType = ticketTypeRepository.findById(ticketTypeId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid ticket type ID: " + ticketTypeId));
-        Ticket ticket = new Ticket();
-        ticket.setHashcode(UUID.randomUUID().toString()); // Generate a unique hashcode
-        ticket.setTicketType(ticketType);
-        return ticket;
-    }).collect(Collectors.toList());
-
-    // Step 3: Calculate total sum
-    double totalSum = tickets.stream()
+    
+            // Check if there are enough tickets available
+            if (!ticketType.hasSufficientTickets(requestedCount.intValue())) {
+                throw new IllegalStateException("Not enough tickets available for ticket type ID: " + ticketTypeId);
+            }
+    
+            // **Decrement totalCount ONLY ONCE for this TicketType**
+            ticketType.setTotalCount(ticketType.getTotalCount() - requestedCount.intValue());
+            ticketTypeRepository.save(ticketType);
+    
+            // Create the requested number of tickets for this type
+            for (int i = 0; i < requestedCount; i++) {
+                Ticket ticket = new Ticket();
+                ticket.setHashcode(UUID.randomUUID().toString());
+                ticket.setTicketType(ticketType);
+                tickets.add(ticket);
+            }
+        }
+    
+        // Calculate total sum
+        double totalSum = tickets.stream()
             .mapToDouble(ticket -> ticket.getTicketType().getTicketPrice())
             .sum();
-
-    // Step 4: Create and save the transaction
-    Transaction transaction = new Transaction(totalSum, user);
-    Transaction savedTransaction = transactionRepository.save(transaction); // Save transaction
-
-    // Step 5: Associate tickets with the saved transaction
-    tickets.forEach(ticket -> ticket.setTransaction(savedTransaction));
-
-    // Step 6: Save updated tickets
-    ticketRepository.saveAll(tickets);
-
-    // Step 7: Set tickets in the saved transaction and return it
-    savedTransaction.setTickets(tickets);
-    return savedTransaction;
-}
+    
+        // Create and save the transaction
+        Transaction transaction = new Transaction(totalSum, user);
+        Transaction savedTransaction = transactionRepository.save(transaction);
+    
+        // Link tickets to the transaction
+        tickets.forEach(ticket -> ticket.setTransaction(savedTransaction));
+        ticketRepository.saveAll(tickets);
+    
+        // Set tickets in the transaction
+        savedTransaction.setTickets(new ArrayList<>(tickets));
+        return savedTransaction;
+    }
 
     public Optional<Transaction> getTransactionById(Long id) {
         return transactionRepository.findById(id);

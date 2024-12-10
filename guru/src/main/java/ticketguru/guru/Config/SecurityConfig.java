@@ -52,6 +52,10 @@ public class SecurityConfig {
                         // Allow public access to the login page
                         .requestMatchers("/").permitAll()
 
+                        // Role-based access control
+                        .requestMatchers("/myynticlient/**").hasAnyRole("ADMIN", "SALESPERSON")
+                        .requestMatchers("/editevent/**", "/raportti/**", "/muokkaa-tapahtumaa/**", "/uusi-tapahtuma/**").hasRole("ADMIN")
+
                         // Public access endpoints
                         .requestMatchers(HttpMethod.GET, "/buy").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/events/**").permitAll()
