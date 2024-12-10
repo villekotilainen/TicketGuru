@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Käyttäjät</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="/myynticlient" class="nav-link">Myynti</a>
+            <a href="/editevent" class="nav-link">Tapahtumat</a>
+            <a href="/raportti" class="nav-link">Raportti</a>
+            <a href="/luo-kayttaja" class="nav-link">Luo Käyttäjä</a>
+            <a href="/logout" class="nav-link logout-link">Kirjaudu ulos</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Käyttäjät</h1>
+        <table id="userTable" border="1">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Sähköposti</th>
+                    <th>Etunimi</th>
+                    <th>Sukunimi</th>
+                    <th>Rooli</th>
+                    <th>Toiminnot</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+        // Fetch and display the user list
+        async function loadUsers() {
+            try {
+                const response = await fetch('/api/users');
+                const users = await response.json();
+
+                const userTableBody = document.querySelector('#userTable tbody');
+                userTableBody.innerHTML = ''; // Clear the table
+
+                users.forEach(user => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${user.userId}</td>
+                        <td>${user.email}</td>
+                        <td>${user.firstName}</td>
+                        <td>${user.lastName}</td>
+                        <td>${user.userrole ? user.userrole.role : 'Ei määritetty'}</td>
+                        <td>
+                            <button onclick="deleteUser(${user.userId})">Poista</button>
+                        </td>
+                    `;
+                    userTableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Virhe käyttäjien hakemisessa:', error);
+            }
+        }
+
+        // Delete a user by ID
+        async function deleteUser(userId) {
+            if (!confirm('Haluatko varmasti poistaa tämän käyttäjän?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/users/${userId}`, { method: 'DELETE' });
+                if (response.ok) {
+                    alert('Käyttäjä poistettu.');
+                    loadUsers(); // Refresh the user list
+                } else {
+                    alert('Virhe käyttäjän poistamisessa.');
+                }
+            } catch (error) {
+                console.error('Virhe käyttäjän poistamisessa:', error);
+                alert('Virhe käyttäjän poistamisessa.');
+            }
+        }
+
+        // Load users when the page is loaded
+        document.addEventListener('DOMContentLoaded', loadUsers);
+    </script>
+</body>
+
+</html>

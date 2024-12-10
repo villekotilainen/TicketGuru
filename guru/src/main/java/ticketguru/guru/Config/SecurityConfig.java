@@ -54,7 +54,7 @@ public class SecurityConfig {
 
                         // Role-based access control
                         .requestMatchers("/myynticlient/**").hasAnyRole("ADMIN", "SALESPERSON")
-                        .requestMatchers("/editevent/**", "/raportti/**", "/muokkaa-tapahtumaa/**", "/uusi-tapahtuma/**").hasRole("ADMIN")
+                        .requestMatchers("/editevent/**", "/raportti/**", "/muokkaa-tapahtumaa/**", "/uusi-tapahtuma/**", "/luo-kayttaja/**", "/kayttajat/**").hasRole("ADMIN")
 
                         // Public access endpoints
                         .requestMatchers(HttpMethod.GET, "/buy").permitAll()
