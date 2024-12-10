@@ -3,19 +3,18 @@
 ### Tiimi: Toom-Kaarel Kiisk, Nikolas Kataja, Aapo Kiljunen, Ville Kotilainen, Julius Luhtala, Kasperi Kuusanmäki
 
 ## Johdanto
-
-### Kuvaus
-Asiakkaamme on lipputoimisto, joka on tilannut lipunmyyntijärjestelmän lippujen myymiseen myyntipisteessään. Toimisto voi määritellä järjestelmään tapahtumat, joihin lippuja myydään. 
-
-Lipunmyyntipisteessä lipunmyyjä myy ja tulostaa asiakkaalle liput. Ennakkomyynnin loputtua loput liput tulostetaan ovella myytäviksi. Lipuissa on ovella helposti tarkastettava koodi, jolla lippu voidaan ovella merkitä käytetyksi.
-
-Jatkokehityksessä järjestelmään aiotaan lisätä verkkokauppa, jolla asiakkaat voivat itse ostaa lippuja.
-
-
-Järjestelmän tarkoitus ja tiivis kuvaus siitä, mistä on kyse ja kenelle järjestelmä on tarkoitettu.
+TicketGuru on lipunmyyntijärjestelmä, joka mahdollistaa lippujen hallinnan ja myynnin tapahtumiin. Järjestelmä tukee lippujen myyntiä paikan päällä sekä tulevaisuudessa verkkokauppaa. Järjestelmän käyttäjäryhmiä ovat lipunmyyjät, tapahtumavastaavat ja asiakkaat. Järjestelmä helpottaa lipunmyynnin prosesseja aina tapahtuman luomisesta lippujen tarkistamiseen ovella.
 ### Toteutus- ja toimintaympäristö lyhyesti:
-- Palvelinpuolen ratkaisut ja teknologiat (esim. palvelinteknologia, mikä tietokantajärjestelmä on käytössä)
-- Käyttöliittymäratkaisut ja teknologiat (esim. päätelaitteet: puhelin, täppäri, desktop)
+Palvelinpuolen teknologiat:
+- Spring Boot -pohjainen backend REST-rajapinnan tarjoamiseen.
+- MariaDB tietokantana tapahtuma-, lipputyyppi- ja käyttäjätietojen tallentamiseen.
+- Palvelinajona Java 17 ympäristössä.
+Käyttöliittymä:
+- HTML/CSS/JavaScript käyttöliittymä (pääasiassa desktop-käytössä).
+- QR-koodilukija lipun tarkistukseen.
+Hosting-ympäristö:
+- Järjestelmä ajetaan esimerkiksi paikallisessa palvelimessa tai pilvipalvelussa (Rahti).
+
 ## Järjestelmän määrittely
 Lipunmyyntijärjestelmä suunnitellaan asiakkaalle, joka on lipputoimisto. Järjestelmän tarkoituksena on mahdollistaa lippujen myynti ja hallinta myyntipisteessa tapahtumiin, joita lipputoimisto järjestää. Järjestelmä palvelee lipunmyyjiä ja asiakkaita sekä lipputoimiston tapahtumavastaavia. Järjestelmän avulla tapahtumien järjestäjät voivat määritellä myytävät tapahtumat ja hallita lippujen myyntiä. Jatkokehityksenä järjestelmään lisätään verkkokauppa, jonka kautta asiakkaat voivat ostaa lippuja itsepalveluna.
 
@@ -46,9 +45,7 @@ Käyttäjätarinat
 -Lipuntarkastajana haluan pystyä tarkastamaan liput ja niiden uniikit ID:t ovella.
 
 ## Käyttöliittymä
-Esitetään käyttöliittymän tärkeimmät (vain ne!) näkymät sekä niiden väliset siirtymät käyttöliittymäkaaviona.
-
-Jos näkymän tarkoitus ei ole itsestään selvä, se pitää kuvata lyhyesti.
+![Screenshot 2024-12-11 at 0 17 38](https://github.com/user-attachments/assets/026a09df-3db1-487e-b3ef-36ef468924bf)
 
 ## Tietokanta
 ![alt text](./documents/tietokantakaavio.jpg "Relational diagram")
