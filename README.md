@@ -144,6 +144,12 @@ Käyttäjätarinat
  - Käyttäjät (admin, lipunmyyjä) käyttävät järjestelmää verkkoselaimen kautta.
  - Lipputarkistus ja myynticlientit ovat yksinkertaisia web-sivuja.
  - Käytetään HTML:ää, CSS:ää ja JavaScriptiä.
+
+###Teknologiat:
+ - HTML, CSS, ja JavaScript käytetään yksinkertaisten ja responsiivisten käyttöliittymien toteutukseen.
+ - QR-koodin lukeminen: html5-qrcode-kirjasto mahdollistaa kameran käyttämisen lippujen QR-koodien lukemiseen.
+
+###Toiminnot
  
 ### Backend (Palvelin):
 
@@ -153,13 +159,16 @@ Käyttäjätarinat
 ### Yhteydet ja Vuorovaikutus:
 
  - Frontend kommunikoi backendin kanssa HTTPS:n yli REST-rajapintojen avulla.
+ - Rajapintojen avulla frontend pystyy hallitsemaan lippuja, tapahtumia, ja myyntiraportteja.
  - Backend käyttää JDBC:tä tietokantayhteyksissä.
+ - JDBC-kirjastolla toteutetut tietokantayhteydet mahdollistavat tietojen tallennuksen ja haun.
 
 ### Käytetyt Teknologiat:
 
-  - Backend: Java, Spring Boot.
+  - Backend: Java, Spring Boot, Spring Security.
   - Tietokanta: H2 (kehityksessä), mariaDB (tuotannossa).
   - Autentikointi: Spring Security (HTTP Basic Authentication).
+  - Frontend: HTML, CSS, JavaScript, html5-qrcode-kirjasto.
   - Build-työkalu: Maven.
   - Versionhallinta: Git (GitHub-repository).
 
@@ -167,7 +176,7 @@ Käyttäjätarinat
 #### Autentikointi ja Autorisointi:
 
   - HTTP Basic Authentication: Käyttäjänimi ja salasana tarkistetaan tietokannasta.
-  - Roolipohjainen käyttöoikeus: esim. admin voi hallita tapahtumia, lipunmyyjä voi myydä lippuja.
+  - Roolipohjainen käyttöoikeus: Adminilla on pääsy kaikkiin toimintoihin, lipunmyyjällä vain tapahtumien myyntiin ja lippujen tarkastukseen.
   
 #### CSRF-suojaus:
 
@@ -179,31 +188,17 @@ Käyttäjätarinat
   
 #### Yhteydet:
 
-  - Kaikki liikenne HTTPS-yhteyksien kautta.
+  - Kaikki liikenne kulkee HTTPS-yhteyksien kautta, mikä varmistaa datan salauksen ja suojaa tietojen välitystä.
+
+## Kehitys- ja tuotantoympäristöt:
+ ### Kehitysympärittö
+ - Spring Boot -sovellus paikallisesti kehittäjien koneilla.
+ - H2-tietokanta simuloimassa tuotantodataa.
+ - Frontend-testaukset suoritetaan paikallisilla selaimilla.
+
+### Tuotantoympäristö:
+ - Spring Boot -sovellus deployattu Rahti-pilvipalveluun.
+ - MariaDB toimii pilvessä tuotantodatan tallentamiseen.
 
 ### REST-rajapinnan kuvaus
 [REST-rajapinta](./documents/restapidocs/)
-
-### Tämän lisäksi
-
-ohjelmakoodin tulee olla kommentoitua
-luokkien, metodien ja muuttujien tulee olla kuvaavasti nimettyjä ja noudattaa johdonmukaisia nimeämiskäytäntöjä
-ohjelmiston pitää olla organisoitu komponentteihin niin, että turhalta toistolta vältytään
-Testaus
-Tässä kohdin selvitetään, miten ohjelmiston oikea toiminta varmistetaan testaamalla projektin aikana: millaisia testauksia tehdään ja missä vaiheessa. Testauksen tarkemmat sisällöt ja testisuoritusten tulosten raportit kirjataan erillisiin dokumentteihin.
-
-Tänne kirjataan myös lopuksi järjestelmän tunnetut ongelmat, joita ei ole korjattu.
-
-## Asennustiedot
-Järjestelmän asennus on syytä dokumentoida kahdesta näkökulmasta:
-
-järjestelmän kehitysympäristö: miten järjestelmän kehitysympäristön saisi rakennettua johonkin toiseen koneeseen
-
-järjestelmän asentaminen tuotantoympäristöön: miten järjestelmän saisi asennettua johonkin uuteen ympäristöön.
-
-Asennusohjeesta tulisi ainakin käydä ilmi, miten käytettävä tietokanta ja käyttäjät tulee ohjelmistoa asentaessa määritellä (käytettävä tietokanta, käyttäjätunnus, salasana, tietokannan luonti yms.).
-
-## Käynnistys- ja käyttöohje
-Tyypillisesti tässä riittää kertoa ohjelman käynnistykseen tarvittava URL sekä mahdolliset kirjautumiseen tarvittavat tunnukset. Jos järjestelmän käynnistämiseen tai käyttöön liittyy joitain muita toimenpiteitä tai toimintajärjestykseen liittyviä asioita, nekin kerrotaan tässä yhteydessä.
-
-Usko tai älä, tulet tarvitsemaan tätä itsekin, kun tauon jälkeen palaat järjestelmän pariin !
