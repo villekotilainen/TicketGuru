@@ -139,12 +139,47 @@ Käyttäjätarinat
 > permissionDescription | varchar | Käyttöoikeuden kuvaus
 
 ## Tekninen kuvaus
-Teknisessä kuvauksessa esitetään järjestelmän toteutuksen suunnittelussa tehdyt tekniset ratkaisut, esim.
+### Frontend (Client):
 
-Missä mikäkin järjestelmän komponentti ajetaan (tietokone, palvelinohjelma) ja komponenttien väliset yhteydet (vaikkapa tähän tyyliin: https://security.ufl.edu/it-workers/risk-assessment/creating-an-information-systemdata-flow-diagram/)
-Palvelintoteutuksen yleiskuvaus: teknologiat, deployment-ratkaisut yms.
-Keskeisten rajapintojen kuvaukset, esimerkit REST-rajapinta. Tarvittaessa voidaan rajapinnan käyttöä täsmentää UML-sekvenssikaavioilla.
-Toteutuksen yleisiä ratkaisuja, esim. turvallisuus.
+ - Käyttäjät (admin, lipunmyyjä) käyttävät järjestelmää verkkoselaimen kautta.
+ - Lipputarkistus ja myynticlientit ovat yksinkertaisia web-sivuja.
+ - Käytetään HTML:ää, CSS:ää ja JavaScriptiä.
+ 
+### Backend (Palvelin):
+
+ - Spring Boot -sovellus: Sisältää liiketoimintalogiikan, tietokantayhteydet ja REST-rajapinnat.
+ - Ajetaan pilvipalvelussa.
+
+### Yhteydet ja Vuorovaikutus:
+
+ - Frontend kommunikoi backendin kanssa HTTPS:n yli REST-rajapintojen avulla.
+ - Backend käyttää JDBC:tä tietokantayhteyksissä.
+
+### Käytetyt Teknologiat:
+
+  - Backend: Java, Spring Boot.
+  - Tietokanta: H2 (kehityksessä), mariaDB (tuotannossa).
+  - Autentikointi: Spring Security (HTTP Basic Authentication).
+  - Build-työkalu: Maven.
+  - Versionhallinta: Git (GitHub-repository).
+
+### Tietoturva:
+#### Autentikointi ja Autorisointi:
+
+  - HTTP Basic Authentication: Käyttäjänimi ja salasana tarkistetaan tietokannasta.
+  - Roolipohjainen käyttöoikeus: esim. admin voi hallita tapahtumia, lipunmyyjä voi myydä lippuja.
+  
+#### CSRF-suojaus:
+
+  - Tuotannossa käytetään CSRF-tokeneita.
+
+#### Salasanat:
+
+  - Hashataan ja suojataan käyttäen BCrypt-algoritmia.
+  
+#### Yhteydet:
+
+  - Kaikki liikenne HTTPS-yhteyksien kautta.
 
 ### REST-rajapinnan kuvaus
 [REST-rajapinta](./documents/restapidocs/)
